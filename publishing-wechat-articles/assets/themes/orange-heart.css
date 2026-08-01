@@ -1,0 +1,7 @@
+article.wechat-article { color: #3f3a36; font: 16px/1.9 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+article.wechat-article h2 { margin: 2em 0 1em; padding: 0.5em 0.8em; color: #7c2d12; background: #fff7ed; border-left: 5px solid #f97316; }
+article.wechat-article h3 { margin-top: 1.7em; color: #c2410c; }
+article.wechat-article pre { overflow-x: auto; padding: 1em; color: #fff7ed; background: #431407; }
+article.wechat-article blockquote { margin: 1.4em 0; padding: 0.7em 1em; color: #7c2d12; border-left: 4px solid #fb923c; background: #fff7ed; }
+article.wechat-article img { display: block; max-width: 100%; margin: 1.4em auto; }
+article.wechat-article .footnotes { margin-top: 2em; color: #9a3412; font-size: 14px; }

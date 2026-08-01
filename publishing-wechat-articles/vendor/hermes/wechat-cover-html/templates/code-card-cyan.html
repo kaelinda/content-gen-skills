@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--
+  Template: code-card-cyan.html
+  Variant:  code-card (right side shows real code snippet, sometimes with "forbidden" highlights)
+  Best for: Frontend, UI design, CSS / Tailwind / React, design systems, UI Skills
+  Palette:  cyan-teal gradient (#2dd4bf → #5eead4) on dark base
+  Layout:   left text 580px + right code card 380-400px, 45-55px padding
+  Customise: 5 zones (tag, version, title, subtitle, code), keep the same color tokens
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0e14 0%, #0a1a1a 100%);
+    position: relative;
+    text-rendering: optimizeLegibility;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(45,212,191,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,212,191,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow {
+    position: absolute; width: 500px; height: 500px;
+    top: -120px; right: -100px;
+    background: radial-gradient(circle, rgba(45,212,191,0.12) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .glow2 {
+    position: absolute; width: 380px; height: 380px;
+    bottom: -120px; left: 80px;
+    background: radial-gradient(circle, rgba(94,234,212,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .container {
+    position: relative; z-index: 10;
+    display: flex; height: 100%; padding: 45px 55px;
+    align-items: center; gap: 30px;
+  }
+  .text-area {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; max-width: 580px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(45,212,191,0.12);
+    border: 1px solid rgba(45,212,191,0.3);
+    color: #5eead4;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 16px; width: fit-content; letter-spacing: 0.5px;
+  }
+  .tag::before {
+    content: ''; width: 6px; height: 6px;
+    background: #5eead4; border-radius: 50%;
+  }
+  .version-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .version-badge .ver {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px; font-weight: 900;
+    background: linear-gradient(90deg, #2dd4bf, #5eead4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .version-badge .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #7d8590;
+  }
+  .version-badge .stars {
+    background: rgba(255,149,0,0.12);
+    color: #ff9f43;
+    padding: 3px 9px; border-radius: 6px;
+    font-size: 12px; font-weight: 700;
+  }
+  .title {
+    font-size: 34px; font-weight: 900;
+    color: #f0f6fc; line-height: 1.35;
+    margin-bottom: 12px; letter-spacing: -0.5px;
+  }
+  .title .hl {
+    background: linear-gradient(90deg, #2dd4bf, #5eead4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 15px; color: #7d8590; line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .features {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .feature-chip {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(48,54,61,0.6);
+    border: 1px solid rgba(139,148,158,0.2);
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .feature-chip.hl {
+    border-color: rgba(45,212,191,0.3);
+    color: #5eead4;
+  }
+  .feature-chip.danger {
+    border-color: rgba(248,113,113,0.4);
+    color: #fca5a5;
+    background: rgba(248,113,113,0.08);
+  }
+  .author {
+    font-size: 12px; color: #484f58;
+  }
+  .author span { color: #2dd4bf; font-weight: 700; }
+  .code-card {
+    width: 380px; flex-shrink: 0;
+    background: rgba(22,27,34,0.95);
+    border: 1px solid rgba(45,212,191,0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid rgba(48,54,61,0.6);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .code-title {
+    margin-left: 8px; font-size: 12px;
+    color: #8b949e; font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-new {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(45,212,191,0.15);
+    color: #5eead4;
+    border: 1px solid rgba(45,212,191,0.3);
+  }
+  .code-body {
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.85;
+  }
+  .kw { color: #ff7b72; }
+  .ty { color: #79c0ff; }
+  .fn { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .pr { color: #ffa657; }
+  .ne { color: #fca5a5; font-weight: 700; }   /* NEVER / forbidden */
+  .footer-bar {
+    padding: 8px 14px;
+    background: rgba(45,212,191,0.05);
+    border-top: 1px solid rgba(48,54,61,0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-bar .src { color: #6e7681; font-size: 12px; }
+  .footer-bar .se { color: #5eead4; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+    <div class="text-area">
+      <div class="tag">AI 编程 · Frontend</div>
+      <div class="version-badge">
+        <span class="label">v</span>
+        <span class="ver">UI Skills</span>
+        <span class="label">·</span>
+        <span class="stars">★ 3.1k</span>
+      </div>
+      <div class="title">
+        给 AI 写前端<br>
+        <span class="hl">下禁令的 5 套规则</span>
+      </div>
+      <div class="subtitle">
+        Cursor / Claude Code / Codex 都吃这套<br>
+        否定式约束，把 AI slop 压到最低
+      </div>
+      <div class="features">
+        <span class="feature-chip hl">baseline-ui</span>
+        <span class="feature-chip hl">a11y P1-P9</span>
+        <span class="feature-chip hl">metadata</span>
+        <span class="feature-chip hl">motion-perf</span>
+        <span class="feature-chip danger">NEVER 渐变</span>
+        <span class="feature-chip danger">NEVER glow</span>
+      </div>
+      <div class="author">
+        <span>UI Skills</span> · ibelick · 推荐：@midudev (32.8万粉)
+      </div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="code-title">SKILL.md · baseline-ui</div>
+        <div class="badge-new">NEVER</div>
+      </div>
+      <div class="code-body">
+<span class="cm"># 反 AI slop 基线</span><br>
+<span class="ne">NEVER</span> use <span class="str">h-screen</span><br>
+&nbsp;&nbsp;<span class="ty">→</span> use <span class="str">h-dvh</span><br><br>
+<span class="ne">NEVER</span> use <span class="str">渐变</span><br>
+&nbsp;&nbsp;<span class="ty">→</span> 紫蓝渐变尤其禁止<br><br>
+<span class="ne">NEVER</span> animate <span class="str">width</span>/<span class="str">height</span><br>
+&nbsp;&nbsp;<span class="ty">→</span> 只动画 transform<br><br>
+<span class="kw">MUST</span> use <span class="str">aria-label</span><br>
+&nbsp;&nbsp;<span class="ty">→</span> on icon-only buttons
+      </div>
+      <div class="footer-bar">
+        <span class="src">npx ui-skills start</span>
+        <span class="se">MIT · 5 SKILLs</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

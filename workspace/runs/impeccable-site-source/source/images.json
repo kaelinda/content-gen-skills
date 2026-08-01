@@ -1,0 +1,286 @@
+[
+  {
+    "url": "https://impeccable.style/assets/openai-logo.png",
+    "context": "Codex CLI"
+  },
+  {
+    "url": "https://impeccable.style/assets/claude-logo.png",
+    "context": "Claude Code"
+  },
+  {
+    "url": "https://impeccable.style/assets/github-copilot-logo.svg",
+    "context": "GitHub Copilot"
+  },
+  {
+    "url": "https://impeccable.style/assets/cursor-logo.png",
+    "context": "Cursor"
+  },
+  {
+    "url": "https://impeccable.style/assets/gemini-logo.png",
+    "context": "Gemini CLI"
+  },
+  {
+    "url": "https://impeccable.style/assets/grok-logo.png",
+    "context": "Grok Build"
+  },
+  {
+    "url": "https://impeccable.style/assets/antigravity-logo.png",
+    "context": "Antigravity"
+  },
+  {
+    "url": "https://impeccable.style/assets/opencode-logo.png",
+    "context": "OpenCode"
+  },
+  {
+    "url": "https://impeccable.style/assets/pi-logo.svg",
+    "context": "Pi"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/MertcanDYuzer.jpg",
+    "context": "Article image 10"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/adrien_ninet.jpg",
+    "context": "Article image 11"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/illscience.jpg",
+    "context": "Article image 12"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/cathrynlavery-1.jpg",
+    "context": "Article image 13"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/IanAndrewsDC.jpg",
+    "context": "Article image 14"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/carlrannaberg.jpg",
+    "context": "Article image 15"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/BowTiedGroundHo.jpg",
+    "context": "Article image 16"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/ivanleomk.jpg",
+    "context": "Article image 17"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/wanikwai.jpg",
+    "context": "Article image 18"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/faizan10114.jpg",
+    "context": "Article image 19"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/Hicker_Moledao.jpg",
+    "context": "Article image 20"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/largePrawn.jpg",
+    "context": "Article image 21"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/karatzas_thomas.jpg",
+    "context": "Article image 22"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/faizan10114.jpg",
+    "context": "Article image 23"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/MikitaHQ.jpg",
+    "context": "Article image 24"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/MertcanDYuzer.jpg",
+    "context": "Article image 25"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/adrien_ninet.jpg",
+    "context": "Article image 26"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/illscience.jpg",
+    "context": "Article image 27"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/cathrynlavery-1.jpg",
+    "context": "Article image 28"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/IanAndrewsDC.jpg",
+    "context": "Article image 29"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/carlrannaberg.jpg",
+    "context": "Article image 30"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/BowTiedGroundHo.jpg",
+    "context": "Article image 31"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/ivanleomk.jpg",
+    "context": "Article image 32"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/wanikwai.jpg",
+    "context": "Article image 33"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/faizan10114.jpg",
+    "context": "Article image 34"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/Hicker_Moledao.jpg",
+    "context": "Article image 35"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/largePrawn.jpg",
+    "context": "Article image 36"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/karatzas_thomas.jpg",
+    "context": "Article image 37"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/faizan10114.jpg",
+    "context": "Article image 38"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/MikitaHQ.jpg",
+    "context": "Article image 39"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/vandotorres.jpg",
+    "context": "Article image 40"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/eclecticV.jpg",
+    "context": "Article image 41"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/nik_ska.jpg",
+    "context": "Article image 42"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/HeyZohaib.jpg",
+    "context": "Article image 43"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/IceCreamChai.jpg",
+    "context": "Article image 44"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/michaelhedgpeth.jpg",
+    "context": "Article image 45"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/littlemartta.jpg",
+    "context": "Article image 46"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/Paul_Kinlan.jpg",
+    "context": "Article image 47"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/JASHANGUPTA15.jpg",
+    "context": "Article image 48"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/sid_hori.jpg",
+    "context": "Article image 49"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/billzh.jpg",
+    "context": "Article image 50"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/johnennis.jpg",
+    "context": "Article image 51"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/devsome_sh.jpg",
+    "context": "Article image 52"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/alejandroreyes.jpg",
+    "context": "Article image 53"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/EmreCoklar.jpg",
+    "context": "Article image 54"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/vandotorres.jpg",
+    "context": "Article image 55"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/eclecticV.jpg",
+    "context": "Article image 56"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/nik_ska.jpg",
+    "context": "Article image 57"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/HeyZohaib.jpg",
+    "context": "Article image 58"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/IceCreamChai.jpg",
+    "context": "Article image 59"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/michaelhedgpeth.jpg",
+    "context": "Article image 60"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/littlemartta.jpg",
+    "context": "Article image 61"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/Paul_Kinlan.jpg",
+    "context": "Article image 62"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/JASHANGUPTA15.jpg",
+    "context": "Article image 63"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/sid_hori.jpg",
+    "context": "Article image 64"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/billzh.jpg",
+    "context": "Article image 65"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/johnennis.jpg",
+    "context": "Article image 66"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/devsome_sh.jpg",
+    "context": "Article image 67"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/alejandroreyes.jpg",
+    "context": "Article image 68"
+  },
+  {
+    "url": "https://impeccable.style/assets/testimonials/EmreCoklar.jpg",
+    "context": "Article image 69"
+  },
+  {
+    "url": "https://impeccable.style/assets/cases/neo-mirai/live-fold.png",
+    "context": "Neo Mirai website hero, the committed world built end to end"
+  },
+  {
+    "url": "https://impeccable.style/assets/claude-mark.png",
+    "context": "Article image 71"
+  }
+]

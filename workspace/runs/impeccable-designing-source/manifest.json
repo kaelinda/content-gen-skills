@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-designing-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 设计方法",
+  "summary": "官方设计工作流与上下文机制",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "46f1ced258564cf667f2a06dd98aeaaf5ac82615a13d1cc9171bba4819796da1",
+      "size": 41806
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "e3901fd49caeb814f4971f2caddf262ccbfb38144f881d6b109b6eb907d130ed",
+      "size": 6431
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "0b6e3b4b4d5c583f4a520556cdb46ac061e6b10c044daab401898544592edfab",
+      "size": 223
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "b9bb9db5fae024afc4947b88fd4bdc83c1c81234e6b2cc424bd09b891406c802",
+      "size": 716
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:56:59+00:00",
+  "updated_at": "2026-08-01T10:57:09+00:00"
+}

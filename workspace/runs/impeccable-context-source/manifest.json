@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-context-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 设计上下文",
+  "summary": "PRODUCT.md 与 DESIGN.md 的官方机制",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "4b0896b244a45cfb38c91f1c8bef72c1cc735527abff4f4aab240a948897c53b",
+      "size": 27093
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "2ae693a072b7359dd448a372b6dcee06ae00ba660b9598be8156ded3f70cfa37",
+      "size": 9512
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "30c32752fc2544af4a0a218dce1b10862f0cc5437affb1e6e4ffa23b3c7255dd",
+      "size": 231
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:57:45+00:00",
+  "updated_at": "2026-08-01T10:57:55+00:00"
+}

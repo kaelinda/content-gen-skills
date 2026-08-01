@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<!--
+  Template: code-card-purple.html
+  Variant:  code-card (right side shows real code snippet)
+  Best for: AI tools, Agent Skills, Claude Code, Cursor, Codex, MCP integrations
+  Palette:  purple-indigo gradient (#a78bfa → #6366f1) on dark base
+  Layout:   left text 580px + right code card 380px, 45-55px padding
+  Customise: 5 zones (tag, version, title, subtitle, code), keep the same color tokens
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0a14 0%, #14102a 100%);
+    position: relative;
+    text-rendering: optimizeLegibility;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(167,139,250,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow {
+    position: absolute; width: 500px; height: 500px;
+    top: -120px; right: -100px;
+    background: radial-gradient(circle, rgba(167,139,250,0.14) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .glow2 {
+    position: absolute; width: 380px; height: 380px;
+    bottom: -120px; left: 80px;
+    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .container {
+    position: relative; z-index: 10;
+    display: flex; height: 100%; padding: 45px 55px;
+    align-items: center; gap: 30px;
+  }
+  .text-area {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; max-width: 580px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.3);
+    color: #c4b5fd;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 16px; width: fit-content; letter-spacing: 0.5px;
+  }
+  .tag::before {
+    content: ''; width: 6px; height: 6px;
+    background: #c4b5fd; border-radius: 50%;
+  }
+  .version-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .version-badge .ver {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px; font-weight: 900;
+    background: linear-gradient(90deg, #a78bfa, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .version-badge .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #7d8590;
+  }
+  .version-badge .stars {
+    background: rgba(255,149,0,0.12);
+    color: #ff9f43;
+    padding: 3px 9px; border-radius: 6px;
+    font-size: 12px; font-weight: 700;
+  }
+  .title {
+    font-size: 34px; font-weight: 900;
+    color: #f0f6fc; line-height: 1.35;
+    margin-bottom: 12px; letter-spacing: -0.5px;
+  }
+  .title .hl {
+    background: linear-gradient(90deg, #a78bfa, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 15px; color: #7d8590; line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .features {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .feature-chip {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(48,54,61,0.6);
+    border: 1px solid rgba(139,148,158,0.2);
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .feature-chip.hl {
+    border-color: rgba(167,139,250,0.3);
+    color: #c4b5fd;
+  }
+  .author {
+    font-size: 12px; color: #484f58;
+  }
+  .author span { color: #a78bfa; font-weight: 700; }
+  .code-card {
+    width: 380px; flex-shrink: 0;
+    background: rgba(22,27,34,0.95);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid rgba(48,54,61,0.6);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .code-title {
+    margin-left: 8px; font-size: 12px;
+    color: #8b949e; font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-new {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(167,139,250,0.15);
+    color: #c4b5fd;
+    border: 1px solid rgba(167,139,250,0.3);
+  }
+  .code-body {
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.85;
+  }
+  .kw { color: #ff7b72; }
+  .ty { color: #79c0ff; }
+  .fn { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .pr { color: #ffa657; }
+  .footer-bar {
+    padding: 8px 14px;
+    background: rgba(167,139,250,0.05);
+    border-top: 1px solid rgba(48,54,61,0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-bar .src { color: #6e7681; font-size: 12px; }
+  .footer-bar .se { color: #c4b5fd; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+    <div class="text-area">
+      <div class="tag">AI 编程 · SwiftUI</div>
+      <div class="version-badge">
+        <span class="label">v</span>
+        <span class="ver">4.0.0</span>
+        <span class="label">·</span>
+        <span class="stars">★ 3.1k</span>
+      </div>
+      <div class="title">
+        给 AI 装一个<br>
+        <span class="hl">SwiftUI 专家大脑</span>
+      </div>
+      <div class="subtitle">
+        把 iOS 15 → iOS 26 的最佳实践打包成 Skill<br>
+        Cursor / Claude Code / Codex 都能用
+      </div>
+      <div class="features">
+        <span class="feature-chip hl">@Observable</span>
+        <span class="feature-chip hl">Liquid Glass</span>
+        <span class="feature-chip hl">Instruments</span>
+        <span class="feature-chip">NavigationStack</span>
+        <span class="feature-chip">@Animatable</span>
+        <span class="feature-chip">Charts 3D</span>
+      </div>
+      <div class="author">
+        <span>SwiftUI Agent Skill</span> · Antoine van der Lee · @SwiftLee
+      </div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="code-title">trace-analyze.sh</div>
+        <div class="badge-new">KILLER</div>
+      </div>
+      <div class="code-body">
+<span class="cm"># 5 通道 trace 分析</span><br>
+<span class="kw">python3</span> <span class="fn">analyze_trace.py</span> \<br>
+&nbsp;&nbsp;<span class="pr">--trace</span> ~/Desktop/MyApp.trace<br><br>
+<span class="cm"># main_running_coverage_pct</span><br>
+<span class="cm"># &lt; 25%  → I/O 阻塞</span><br>
+<span class="cm"># ≥ 75%  → CPU 密集</span><br><br>
+<span class="ty">Result</span>:<br>
+&nbsp;&nbsp;<span class="fn">hang</span> @ <span class="str">6.2s</span> · <span class="ty">80%</span> CPU<br>
+&nbsp;&nbsp;<span class="pr">root</span>: <span class="ty">FeedView</span>.<span class="fn">body</span>
+      </div>
+      <div class="footer-bar">
+        <span class="src">github.com/avdlee/swiftui-agent-skill</span>
+        <span class="se">MIT</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

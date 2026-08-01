@@ -1,0 +1,22 @@
+schema_version = 1
+
+[oss]
+bucket = "kaelblog"
+endpoint = "oss-cn-beijing.aliyuncs.com"
+prefix = "wechat"
+
+[accounts.tech]
+display_name = "AICoder"
+theme_name = "极客黑"
+theme_file = "vendor/hermes/md-to-html/references/mdnice-themes/13-极客黑.css"
+cover_template = "assets/covers/tech.html"
+vault_default = "workspace/vaults/tech"
+keywords = ["swift", "ios", "ai", "编程", "wwdc", "agent", "api", "模型", "llm", "hermes", "xcode", "代码", "开发", "工程"]
+
+[accounts.parenting]
+display_name = "育儿育己"
+theme_name = "橙心"
+theme_file = "vendor/hermes/md-to-html/references/mdnice-themes/1-橙心.css"
+cover_template = "assets/covers/parenting.html"
+vault_default = "workspace/vaults/parenting"
+keywords = ["孩子", "育儿", "父母", "家庭", "教育", "心理", "成长", "婴儿", "幼儿", "小学生", "青春期", "child", "parenting", "parents", "family", "adolescence"]

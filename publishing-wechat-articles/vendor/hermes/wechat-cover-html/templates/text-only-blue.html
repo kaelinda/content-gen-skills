@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  Template: text-only-blue.html
+  Variant:  text-only (no right-side code card, full-bleed title)
+  Best for: opinion essays, news roundups, "what changed" summaries, declarative titles
+  Palette:  blue-cyan gradient (#5e9fff → #5ed4ff) on dark base
+  Layout:   single column, title centered vertically, large 48-60px
+  Customise: 4 zones (tag, version, title, subtitle), keep centered
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0e14 0%, #0d1320 100%);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    text-rendering: optimizeLegibility;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(120,180,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,180,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow {
+    position: absolute; width: 600px; height: 600px;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(94,159,255,0.10) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .content {
+    position: relative; z-index: 10;
+    text-align: center; max-width: 1000px; padding: 0 60px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(94,159,255,0.12);
+    border: 1px solid rgba(94,159,255,0.3);
+    color: #5e9fff;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 24px; letter-spacing: 0.5px;
+  }
+  .tag::before {
+    content: ''; width: 6px; height: 6px;
+    background: #5e9fff; border-radius: 50%;
+  }
+  .title {
+    font-size: 54px; font-weight: 900;
+    color: #f0f6fc; line-height: 1.3;
+    margin-bottom: 20px; letter-spacing: -1px;
+  }
+  .title .hl {
+    background: linear-gradient(90deg, #5e9fff, #5ed4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 20px; color: #7d8590; line-height: 1.5;
+    margin-bottom: 32px;
+  }
+  .author {
+    font-size: 14px; color: #484f58;
+  }
+  .author span { color: #5e9fff; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="content">
+    <div class="tag">AI 工具 · 周报</div>
+    <div class="title">
+      2026 WWDC<br>
+      <span class="hl">开发者工具链 AI 化大爆发</span>
+    </div>
+    <div class="subtitle">
+      LLDB MCP · Agent Skills · Instruments 5通道分析 · 代码级 AI 调试
+    </div>
+    <div class="author">
+      来源: <span>Apple Developer · WWDC 2026</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-detector-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 检测器",
+  "summary": "官方确定性 UI 规则与 CI 用法",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "647b09886a599ff6410ba5dc37ca55ce81d343cd8559ed0189f19e2d3c7ba7a8",
+      "size": 148401
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "22e95c76ab26ae5335bdf0af1579112f9eb2dc37325d2f8d113214a5578d30f5",
+      "size": 1838
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "cad68e960f3c3820fd12654c521f53cd9337521620be7996df8074be46b753a4",
+      "size": 221
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:56:59+00:00",
+  "updated_at": "2026-08-01T10:57:09+00:00"
+}

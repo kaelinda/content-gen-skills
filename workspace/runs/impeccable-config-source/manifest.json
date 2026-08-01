@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-config-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 配置",
+  "summary": "配置、忽略规则与仓库接入",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "f6515ca602f4dd421f810190a67731ae4bcaa0462e524acc92d06c1acdea4a5b",
+      "size": 30813
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "5806b0675b33dcafeb655f76acb21bb939f3fe3d4a3b7dfc03ec85e0e4c95adc",
+      "size": 7136
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "e73c6e777d077b3df73b79ca52e281727d694a746c6c21cf6578de43e25552d7",
+      "size": 233
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:57:45+00:00",
+  "updated_at": "2026-08-01T10:57:55+00:00"
+}

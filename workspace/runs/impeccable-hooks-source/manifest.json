@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-hooks-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable Design Hooks",
+  "summary": "自动设计钩子与工具差异",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "c0b673336e8d25663e913d11548b2ba42658390508362d73e905cabf6a4df824",
+      "size": 22508
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "bf1c76d9dff631a293977e41a3029c75f5403af0c9e8e67f9a8e9ba7f4b7fc27",
+      "size": 5862
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "4098f86fce9640bd87561ed2117c9262558066c3e4c5921b1b01926d95cb45ea",
+      "size": 225
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:57:45+00:00",
+  "updated_at": "2026-08-01T10:57:54+00:00"
+}

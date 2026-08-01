@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+  Agent 工程化系列 公众号封面模板
+  Author: Hermes Agent
+  Last verified: 2026-06-06 (Vol.12 Dami-Defi Hermes Compounding)
+  Dimensions: 1200×514 (20:9), 2x device_scale_factor → 2400×1028 PNG
+  KNOWN-GOOD LAYOUT (do not change these CSS values without re-validating all series covers):
+    - code card:  right 40px / top 110px / width 300px (NOT 60/130/320 — that overlaps the title)
+    - title:      left 80px / right 80px (default) OR right 320px when title is long
+    - subtitle:   left 80px (default) OR right 320px when title is long
+    - list items: NO <span class="kw">N.</span> prefix on CSNIPPET_LINE_X (the line text already
+                  starts with "1. Skill Map", so adding the prefix creates "1. 1. Skill Map")
+  Editable regions (search these markers in the file):
+    - SERIES_TAG_LABEL  → e.g. "Agent 工程化系列"
+    - SERIES_VOL_NUM    → e.g. "Vol.07"
+    - TITLE_LINE_1      → first line of the big title (white)
+    - TITLE_LINE_2      → second line (purple→pink gradient highlight)
+    - SUBTITLE          → subtitle below the title
+    - AUTHOR_META       → comma-separated author/team/date
+    - CODE_SNIPPET_LINES → 5-7 lines for the right-side code card
+  Font-size decision: keep 78px for short titles (line1+line2 < 10 chinese chars). For long
+    titles, drop to 60px and set title right: 320px so it doesn't run under the code card.
+  Color palette is locked: dark navy bg + indigo/pink gradient.
+  See references/agent-engineering-series-cover.md for the full layout guide and
+  pre-publish visual verification checklist.
+-->
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1200px;
+    height: 514px;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", Arial, sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 80%, rgba(236, 72, 153, 0.28) 0%, transparent 60%),
+      linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 100%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4; }
+  .orb1 { width: 300px; height: 300px; background: #6366f1; top: -100px; left: -80px; }
+  .orb2 { width: 250px; height: 250px; background: #ec4899; bottom: -80px; right: -60px; }
+
+  .series-tag {
+    position: absolute;
+    top: 50px; left: 80px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #a5b4fc;
+    letter-spacing: 2px;
+  }
+  .series-tag .pill {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid rgba(165, 180, 252, 0.4);
+    border-radius: 999px;
+    margin-right: 12px;
+    background: rgba(99, 102, 241, 0.1);
+  }
+  .series-tag .num { color: #f472b6; font-weight: 700; }
+
+  .title {
+    position: absolute;
+    top: 130px; left: 80px; right: 80px;
+    font-size: 78px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+  .title .line1 { color: #fff; display: block; }
+  .title .line2 {
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+  }
+
+  .subtitle {
+    position: absolute;
+    top: 330px; left: 80px;
+    font-size: 22px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .meta {
+    position: absolute;
+    bottom: 50px; left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+  }
+  .meta .dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; }
+  .meta .author { color: #a5b4fc; font-weight: 600; }
+
+  .code-card {
+    position: absolute;
+    right: 40px; top: 110px;
+    width: 300px;
+    background: rgba(15, 15, 30, 0.7);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #cbd5e1;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .code-card .dots { display: flex; gap: 6px; margin-bottom: 12px; }
+  .code-card .dots span { width: 9px; height: 9px; border-radius: 50%; }
+  .code-card .dots span:nth-child(1) { background: #ef4444; }
+  .code-card .dots span:nth-child(2) { background: #f59e0b; }
+  .code-card .dots span:nth-child(3) { background: #10b981; }
+  .code-card .line { color: #94a3b8; }
+  .code-card .comment { color: #64748b; }
+  .code-card .kw { color: #a78bfa; }
+  .code-card .str { color: #f472b6; }
+  .code-card .fn { color: #60a5fa; }
+  .code-card .hl { color: #fbbf24; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="series-tag">
+    <span class="pill">SERIES_TAG_LABEL</span>
+    <span class="num">SERIES_VOL_NUM</span>
+  </div>
+
+  <div class="title">
+    <span class="line1">TITLE_LINE_1</span>
+    <span class="line2">TITLE_LINE_2</span>
+  </div>
+
+  <div class="subtitle">SUBTITLE</div>
+
+  <div class="meta">
+    <span class="author">AUTHOR_META_1</span>
+    <span class="dot"></span>
+    <span>AUTHOR_META_2</span>
+    <span class="dot"></span>
+    <span>AUTHOR_META_3</span>
+  </div>
+
+  <div class="code-card">
+    <div class="dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="comment"># CODE_SNIPPET_HEADER</div>
+    <div><span class="line">CSNIPPET_LINE_1</span></div>
+    <div><span class="line">CSNIPPET_LINE_2</span></div>
+    <div><span class="line">CSNIPPET_LINE_3</span></div>
+    <div><span class="line">CSNIPPET_LINE_4</span></div>
+    <div><span class="hl">CSNIPPET_LINE_5_HL</span></div>
+  </div>
+</body>
+</html>

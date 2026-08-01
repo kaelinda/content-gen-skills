@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!--
+  Code-Editor Split Layout Cover Template (1200×540, 20:9)
+  Pattern: dark bg + grid + glow orbs | LEFT: tag/title/subtitle/author | RIGHT: terminal-style code card
+  
+  Usage:
+    1. Copy to /tmp/cover-<slug>.html
+    2. Replace ALL CAPS placeholders (TAG_TEXT, TITLE_LINE_1, TITLE_HL, SUBTITLE, AUTHOR_INFO,
+       CODE_FILENAME, CODE_BODY, BADGE_TEXT, FOOTER_LEFT, FOOTER_RIGHT)
+    3. Adjust accent color: search-replace the hex values (e.g., #ff6961 → your accent)
+    4. Render: /Users/nowcoder/miniconda3/bin/python3 -c "
+       from playwright.sync_api import sync_playwright
+       import os
+       url = f'file://{os.path.abspath(\"/tmp/cover-<slug>.html\")}'
+       with sync_playwright() as p:
+           b = p.chromium.launch()
+           pg = b.new_page(viewport={'width':1200,'height':540}, device_scale_factor=2)
+           pg.goto(url, wait_until='networkidle')
+           pg.wait_for_timeout(2000)
+           pg.screenshot(path='/tmp/cover-<slug>.png', type='png')
+           b.close()"
+  
+  Tested: 2026-06-23 (SwiftUI Agent Skill + Swift 6.4 Concurrency articles)
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: #0d1117;  /* ADJUST per theme */
+    position: relative;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow {
+    position: absolute; width: 450px; height: 450px;
+    top: -80px; right: -60px;
+    background: radial-gradient(circle, rgba(255,149,0,0.12) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .glow2 {
+    position: absolute; width: 350px; height: 350px;
+    bottom: -100px; left: 150px;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .container {
+    position: relative; z-index: 10;
+    display: flex; height: 100%; padding: 45px 55px;
+  }
+  .text-area {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-width: 620px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,149,0,0.15);
+    border: 1px solid rgba(255,149,0,0.35);
+    color: #ff9f43;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 18px; width: fit-content; letter-spacing: 0.5px;
+  }
+  .tag::before { content: ''; width: 6px; height: 6px; background: #ff9f43; border-radius: 50%; }
+  .title {
+    font-size: 38px; font-weight: 900; color: #f0f6fc;
+    line-height: 1.35; margin-bottom: 14px; letter-spacing: -0.5px;
+  }
+  .title .hl {
+    background: linear-gradient(90deg, #ff9f43, #f77825);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { font-size: 16px; color: #8b949e; line-height: 1.65; margin-bottom: 22px; }
+  .author { font-size: 13px; color: #484f58; margin-top: auto; }
+  .author span { color: #ff9f43; font-weight: 700; }
+  /* Code card */
+  .code-card {
+    width: 380px; flex-shrink: 0; margin-top: 15px; margin-right: 10px;
+    background: rgba(22,27,34,0.95);
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid rgba(48,54,61,0.6);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; } .dot.y { background: #ffbd2e; } .dot.g { background: #27c93f; }
+  .code-title { margin-left: 8px; font-size: 12px; color: #8b949e; font-family: 'JetBrains Mono', monospace; }
+  .badge-new {
+    margin-left: auto; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(255,69,58,0.15); color: #ff6961;
+    border: 1px solid rgba(255,69,58,0.3);
+  }
+  .code-body {
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.9;
+  }
+  /* Syntax highlight classes */
+  .kw { color: #ff7b72; } .ty { color: #79c0ff; } .fn { color: #d2a8ff; }
+  .str { color: #a5d6ff; } .cm { color: #8b949e; font-style: italic; } .pr { color: #ffa657; }
+  .footer-bar {
+    padding: 8px 14px; background: rgba(255,149,0,0.06);
+    border-top: 1px solid rgba(48,54,61,0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-bar .left { color: #6e7681; font-size: 12px; }
+  .footer-bar .right { color: #ff9f0a; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+    <div class="text-area">
+      <div class="tag">TAG_TEXT</div>
+      <div class="title">
+        TITLE_LINE_1<br>
+        <span class="hl">TITLE_HL</span>
+      </div>
+      <div class="subtitle">SUBTITLE_LINE_1<br>SUBTITLE_LINE_2</div>
+      <div class="author">AUTHOR_INFO</div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="code-title">CODE_FILENAME</div>
+        <div class="badge-new">BADGE_TEXT</div>
+      </div>
+      <div class="code-body">
+        <!-- Replace with syntax-highlighted code. Use span classes: kw/ty/fn/str/cm/pr -->
+        <span class="cm">// CODE_BODY_COMMENT</span><br>
+        <span class="kw">CODE_LINE_1</span><br>
+        <span class="kw">CODE_LINE_2</span>
+      </div>
+      <div class="footer-bar">
+        <span class="left">FOOTER_LEFT</span>
+        <span class="right">FOOTER_RIGHT</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-getting-started-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 入门文档",
+  "summary": "官方安装与首次初始化指南",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "2a2bd86a6dbc76f20e5edee695eecbe50a077febe43260efae5075283cb48ac1",
+      "size": 25909
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "3969348c210de294b6720b8cf06b3ad90be8ac7d5d55a563fa30546ce23f327e",
+      "size": 7334
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "9134d2c72018013e4db6058c1073123a50a8c8a8f45b0529500f442d162e70fa",
+      "size": 258
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:56:58+00:00",
+  "updated_at": "2026-08-01T10:57:09+00:00"
+}

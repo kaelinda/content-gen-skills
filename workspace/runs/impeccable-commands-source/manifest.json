@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-commands-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 命令参考",
+  "summary": "官方命令体系与高级用法",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "b945014c1a0fefe0e1c95b0145e79fac4e75a113fbc78d110574b34a1ad1ab8b",
+      "size": 28520
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "5aa7f6aae5dc48465128344519056fc1a56b13a2cdfa9016eeca8b77ad7ca461",
+      "size": 3979
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "228b2305bc822bac4fd6b45852e4551a1d76ff32be6fb721e175a2067dba6b8e",
+      "size": 205
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:56:58+00:00",
+  "updated_at": "2026-08-01T10:57:09+00:00"
+}

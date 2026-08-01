@@ -1,0 +1,27 @@
+{
+  "title": "Impeccable 实战指南：从安装到现有前端工程接入",
+  "score": 100,
+  "passed": true,
+  "metrics": {
+    "visible_length": 27,
+    "body_overlap": 0.5,
+    "matched_terms": [
+      "impeccable",
+      "前端",
+      "安装",
+      "工程",
+      "工程接",
+      "接入",
+      "现有",
+      "程接",
+      "程接入"
+    ],
+    "value_signals": [
+      "指南",
+      "实战"
+    ],
+    "sensational_hits": [],
+    "minimum_score": 80
+  },
+  "findings": []
+}

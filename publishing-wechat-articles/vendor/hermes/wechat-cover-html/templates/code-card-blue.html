@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!--
+  Template: code-card-blue.html
+  Variant:  code-card (right side shows real code snippet)
+  Best for: iOS 27 features, SwiftUI new APIs, iOS releases, WWDC recaps
+  Palette:  blue-cyan gradient (#5e9fff → #5ed4ff) on dark base
+  Layout:   left text 580px + right code card 400px, 45-55px padding
+  Customise: 5 zones (tag, version, title, subtitle, code), keep the same color tokens
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0e14 0%, #0d1320 100%);
+    position: relative;
+    text-rendering: optimizeLegibility;
+  }
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(120,180,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,180,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow {
+    position: absolute; width: 500px; height: 500px;
+    top: -120px; right: -80px;
+    background: radial-gradient(circle, rgba(94,159,255,0.12) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .glow2 {
+    position: absolute; width: 400px; height: 400px;
+    bottom: -120px; left: 100px;
+    background: radial-gradient(circle, rgba(94,212,255,0.06) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .container {
+    position: relative; z-index: 10;
+    display: flex; height: 100%; padding: 45px 55px;
+    align-items: center; gap: 25px;
+  }
+  .text-area {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; max-width: 560px;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(94,159,255,0.12);
+    border: 1px solid rgba(94,159,255,0.3);
+    color: #5e9fff;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 16px; width: fit-content; letter-spacing: 0.5px;
+  }
+  .tag::before {
+    content: ''; width: 6px; height: 6px;
+    background: #5e9fff; border-radius: 50%;
+  }
+  .version-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-bottom: 8px;
+  }
+  .version-badge .swift-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700;
+    color: #5ed4ff;
+  }
+  .version-badge .ver {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 900;
+    background: linear-gradient(90deg, #5e9fff, #5ed4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .title {
+    font-size: 34px; font-weight: 900;
+    color: #f0f6fc; line-height: 1.35;
+    margin-bottom: 12px; letter-spacing: -0.5px;
+  }
+  .title .hl { color: #5ed4ff; }
+  .subtitle {
+    font-size: 15px; color: #7d8590; line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .features {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .feature-chip {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(48,54,61,0.6);
+    border: 1px solid rgba(139,148,158,0.2);
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .feature-chip.new {
+    border-color: rgba(94,212,255,0.3);
+    color: #5ed4ff;
+  }
+  .author {
+    font-size: 13px; color: #484f58; margin-top: auto;
+  }
+  .author span { color: #5e9fff; font-weight: 700; }
+  .code-card {
+    width: 400px; flex-shrink: 0;
+    margin-top: 15px; margin-right: 10px;
+    background: rgba(22,27,34,0.95);
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid rgba(48,54,61,0.6);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .code-title {
+    margin-left: 8px; font-size: 12px;
+    color: #8b949e; font-family: 'JetBrains Mono', monospace;
+  }
+  .code-body {
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.9;
+  }
+  .kw { color: #ff7b72; }
+  .ty { color: #79c0ff; }
+  .fn { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .pr { color: #ffa657; }
+  .footer-bar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 8px 14px;
+    background: rgba(94,159,255,0.06);
+    border-top: 1px solid rgba(48,54,61,0.4);
+  }
+  .footer-bar .star-icon { color: #ff9f43; font-size: 14px; }
+  .footer-bar .star-text { color: #c9d1d9; font-size: 13px; font-weight: 700; }
+  .footer-bar .star-sub { color: #6e7681; font-size: 12px; margin-left: 8px; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+    <div class="text-area">
+      <div class="tag">SwiftUI · iOS 27</div>
+      <div class="version-badge">
+        <span class="swift-logo">⬡ SwiftUI</span>
+        <span class="ver">iOS 27</span>
+      </div>
+      <div class="title">
+        AsyncImage 终于支持<br>
+        <span class="hl">URLRequest 和自定义 Session</span>
+      </div>
+      <div class="subtitle">
+        WWDC 2026 给网络图片加上完整控制权<br>
+        6 个实战场景，配代码对比
+      </div>
+      <div class="features">
+        <span class="feature-chip new">URLRequest</span>
+        <span class="feature-chip new">asyncImageURLSession</span>
+        <span class="feature-chip new">AsyncImagePhase</span>
+        <span class="feature-chip new">waitsForConnectivity</span>
+      </div>
+      <div class="author">
+        来源: <span>nilcoalescing.com</span> · Natalia Panferova · 前 Apple SwiftUI 团队
+      </div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="code-title">AsyncImage+iOS27.swift</div>
+      </div>
+      <div class="code-body">
+<span class="cm">// 1. 加载需要鉴权的图片</span><br>
+<span class="ty">AsyncImage</span>(<span class="pr">request</span>: <span class="fn">request</span>) { <span class="pr">image</span> <span class="kw">in</span><br>
+&nbsp;&nbsp;<span class="pr">image</span>.<span class="fn">resizable</span>()<br>
+} <span class="pr">placeholder</span>: {<br>
+&nbsp;&nbsp;<span class="ty">ProgressView</span>()<br>
+}<br><br>
+<span class="cm">// 2. 自定义 URLSession</span><br>
+.<span class="fn">asyncImageURLSession</span>(<br>
+&nbsp;&nbsp;<span class="ty">ImageSessions</span>.gallery<br>
+)<br><br>
+<span class="cm">// 3. phase 处理失败</span><br>
+<span class="kw">case</span> .<span class="fn">failure</span>:<br>
+&nbsp;&nbsp;<span class="ty">ContentUnavailableView</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Image unavailable"</span><br>
+&nbsp;&nbsp;)
+      </div>
+    </div>
+  </div>
+</body>
+</html>

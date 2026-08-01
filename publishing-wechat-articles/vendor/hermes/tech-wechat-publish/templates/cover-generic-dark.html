@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 514px;
+  /* === CUSTOMIZE: gradient colors === */
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 40%, #0d1233 70%, #060a1f 100%);
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.grid {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(100, 140, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 140, 255, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+/* === CUSTOMIZE: decorative orb === */
+.orb {
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 130, 255, 0.35) 0%, rgba(99, 130, 255, 0.08) 50%, transparent 70%);
+  top: 80px; right: 120px;
+  filter: blur(40px);
+}
+.content {
+  position: relative; z-index: 2;
+  padding: 80px 80px 60px 80px;
+}
+/* === CUSTOMIZE: tag text === */
+.tag {
+  display: inline-block;
+  background: rgba(99, 130, 255, 0.15);
+  border: 1px solid rgba(99, 130, 255, 0.3);
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 14px;
+  color: rgba(160, 190, 255, 0.9);
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+/* === CUSTOMIZE: title text === */
+h1 {
+  font-size: 42px;
+  font-weight: 700;
+  color: #e8ecf8;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  max-width: 800px;
+}
+h1 span {
+  color: #6b8aff;
+}
+/* === CUSTOMIZE: subtitle text === */
+.subtitle {
+  font-size: 18px;
+  color: rgba(160, 180, 220, 0.7);
+  margin-top: 12px;
+  letter-spacing: 0.5px;
+}
+.bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4a6aff, #7b5cff, #a855f7, #4a6aff);
+}
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="orb"></div>
+  <div class="content">
+    <!-- === CUSTOMIZE these three fields === -->
+    <div class="tag">TAG_LINE_HERE</div>
+    <h1>TITLE_LINE_1<br>TITLE_LINE_2</h1>
+    <div class="subtitle">SUBTITLE_HERE</div>
+  </div>
+  <div class="bar"></div>
+</body>
+</html>

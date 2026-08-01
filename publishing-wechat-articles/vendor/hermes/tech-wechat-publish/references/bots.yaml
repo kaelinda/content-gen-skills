@@ -1,0 +1,11 @@
+routing:
+  tech:
+    category: tech
+    bot_name: AICoder内容助手
+    app_id: __MIGRATED_TO_RUNTIME_LOCAL__
+    app_secret: __MIGRATED_TO_RUNTIME_LOCAL__
+  parenting:
+    category: parenting
+    bot_name: 育儿育己
+    app_id: __MIGRATED_TO_RUNTIME_LOCAL__
+    app_secret: __MIGRATED_TO_RUNTIME_LOCAL__

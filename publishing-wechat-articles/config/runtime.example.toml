@@ -1,0 +1,23 @@
+schema_version = 1
+
+[oss]
+access_key_id = ""
+access_key_secret = ""
+
+[feishu]
+mode = "lark-cli"
+primary_chat_id = ""
+tech_app_id = ""
+tech_app_secret = ""
+parenting_app_id = ""
+parenting_app_secret = ""
+
+[accounts.tech]
+chat_id = ""
+base_token = ""
+table_id = ""
+
+[accounts.parenting]
+chat_id = ""
+base_token = ""
+table_id = ""

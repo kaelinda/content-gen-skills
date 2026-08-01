@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+  知识系统 / 方法论主题 公众号封面模板
+  Author: Hermes Agent
+  Verified: 2026-06-27 (LLM Second Brain Karpathy cover)
+  Dimensions: 1200×514 (20:9), 2x device_scale_factor → 2400×1028 PNG
+  KNOWN-GOOD LAYOUT (do not change without re-validating):
+    - left content:  left 80px / right 380px (NOT 60 — title needs space)
+    - right card:    right 60px / top 110px / width 300px (NOT 320 — overlaps long title)
+    - big-number watermark: positioned bottom-right INSIDE the card, NOT outside
+    - card has:    dark transparent bg + indigo/pink accent borders + back-drop blur
+  Editable regions (search these markers in the file):
+    - BADGE_TEXT    → e.g. "LLM 知识系统"
+    - AUTHOR_TAG    → e.g. "@karpathy"
+    - TITLE_LINE_1  → first line of the big title (white)
+    - TITLE_LINE_2  → second line (purple→pink gradient highlight)
+    - SUBTITLE_LINE_1 / _2 → two-line subtitle
+    - CARD_LABEL_1 / CARD_LAYERS (3 items: key + text + owner class)
+    - CARD_LABEL_2 / CARD_LAYERS_2 (2 items: comparison rows)
+    - BIG_NUMBER    → large watermark digit e.g. "9" / "10"
+    - META_PILLS    → 3 comma-separated meta items (e.g. "10 步动手 · 9 条规则 · 3 条行动")
+  Color palette is locked: dark navy bg + indigo/pink accents.
+  For 知识系统 / 方法论 / 概念对比 主题: 左侧标题 + 右侧信息块 + 大数字水印,
+  信息密度高 + 数字突出, 适合"X rules" / "X 步" / "N 维" 类文章.
+  See references/html-cover-playwright.md for the screenshot pipeline.
+-->
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1200px; height: 514px;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", Arial, sans-serif;
+    background: #0a0a0f; color: #fff;
+    position: relative; overflow: hidden;
+  }
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 20%, rgba(99, 102, 241, 0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 60%),
+      linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 100%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4; }
+  .orb1 { width: 300px; height: 300px; background: #6366f1; top: -100px; left: -80px; }
+  .orb2 { width: 250px; height: 250px; background: #ec4899; bottom: -80px; right: -60px; }
+
+  .tag {
+    position: absolute; top: 50px; left: 80px;
+    font-size: 18px; font-weight: 600;
+    color: #a5b4fc; letter-spacing: 2px;
+  }
+  .tag .pill {
+    display: inline-block; padding: 6px 14px;
+    border: 1px solid rgba(165, 180, 252, 0.4);
+    border-radius: 999px; margin-right: 12px;
+    background: rgba(99, 102, 241, 0.1);
+  }
+  .tag .author { color: #f472b6; font-weight: 700; }
+
+  .title {
+    position: absolute; top: 130px; left: 80px; right: 380px;
+    font-size: 60px; font-weight: 800; line-height: 1.15;
+    color: #fff;
+  }
+  .title .hl {
+    background: linear-gradient(135deg, #a5b4fc 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    position: absolute; top: 360px; left: 80px; right: 380px;
+    font-size: 20px; color: #94a3b8; line-height: 1.5;
+  }
+
+  .card {
+    position: absolute; right: 60px; top: 110px;
+    width: 300px; height: 320px;
+    background: rgba(15, 15, 26, 0.7);
+    border: 1px solid rgba(165, 180, 252, 0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(10px);
+  }
+  .card .label {
+    font-size: 12px; color: #94a3b8; margin-bottom: 8px;
+    font-family: -apple-system, "SF Mono", monospace;
+  }
+  .card .layer {
+    display: flex; align-items: center;
+    padding: 7px 11px; margin-bottom: 5px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 6px;
+    font-family: -apple-system, "SF Mono", monospace;
+    font-size: 13px; color: #e0e7ff;
+  }
+  .card .layer.owner {
+    background: rgba(236, 72, 153, 0.12);
+    border-color: rgba(236, 72, 153, 0.3);
+    color: #fbcfe8;
+  }
+  .card .layer.accent {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.6);
+  }
+  .card .layer .key { color: #a5b4fc; min-width: 70px; }
+  .card .layer.owner .key { color: #f472b6; }
+  .card .arrow {
+    text-align: center; color: #64748b; font-size: 11px; margin: 3px 0;
+  }
+  .card .num-big {
+    position: absolute; bottom: -8px; right: 6px;
+    font-size: 90px; font-weight: 900;
+    color: rgba(236, 72, 153, 0.85);
+    line-height: 1;
+    font-family: -apple-system, "SF Mono", monospace;
+  }
+
+  .meta {
+    position: absolute; bottom: 35px; left: 80px;
+    font-size: 15px; color: #64748b;
+  }
+  .meta .sep { margin: 0 12px; color: #475569; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="tag">
+    <span class="pill">BADGE_TEXT</span>
+    <span class="author">AUTHOR_TAG</span>
+  </div>
+
+  <div class="title">
+    TITLE_LINE_1 <span class="hl">TITLE_HIGHLIGHT</span><br/>
+    TITLE_LINE_2
+  </div>
+
+  <div class="subtitle">
+    SUBTITLE_LINE_1<br/>
+    SUBTITLE_LINE_2
+  </div>
+
+  <div class="card">
+    <div class="label">// CARD_LABEL_1</div>
+    <div class="layer owner"><span class="key">LAYER_1_KEY</span> LAYER_1_TEXT</div>
+    <div class="layer"><span class="key">LAYER_2_KEY</span> LAYER_2_TEXT</div>
+    <div class="layer owner"><span class="key">LAYER_3_KEY</span> LAYER_3_TEXT</div>
+    <div class="arrow">↓ CARD_ARROW ↓</div>
+    <div class="label" style="margin-top:10px">// CARD_LABEL_2</div>
+    <div class="layer"><span class="key" style="min-width:90%">ROW_1_TEXT</span></div>
+    <div class="layer accent" style="background:rgba(99,102,241,0.25);border-color:rgba(99,102,241,0.6)"><span class="key" style="min-width:90%">ROW_2_TEXT</span></div>
+    <div class="num-big">BIG_NUMBER</div>
+  </div>
+
+  <div class="meta">
+    <span>META_1</span>
+    <span class="sep">·</span>
+    <span>META_2</span>
+    <span class="sep">·</span>
+    <span>META_3</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-detector-cli-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable Detector CLI",
+  "summary": "检测器命令参数与 CI 集成",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "c79ea13710bafa335466994e01af1275c2196954b85398f7c27faf14be4330da",
+      "size": 25402
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "2772af3aa613c6e78733dbcb23f0ae0954db1f63223275ab1f084ab7e321f2c9",
+      "size": 4630
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "9981e54fae9cb783d5ab2beb6d1995189c112aaa6f67f58785b1c0fb033c0bd0",
+      "size": 231
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:57:45+00:00",
+  "updated_at": "2026-08-01T10:57:54+00:00"
+}

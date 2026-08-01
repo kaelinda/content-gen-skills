@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-site-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable 官网资料",
+  "summary": "Impeccable 官方网站与文档的原始资料",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "de1df6f8c29373de6a977155896943ec1c1bcd1f31fab5ed941c00ce8ac5252c",
+      "size": 107971
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "08aa4d94d5159716e5f350a9eebee6c95ac22129219547a6cbd49aa14a7b44ee",
+      "size": 15395
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "d8dfc03e48fb9ecefed3e2c634c4248d7dc279e059fbb80dc3b20734a980ccfa",
+      "size": 242
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "a6ee8d4b6750cae1a5861cc9c02ebbfc35f1629572011ee92000a57ad08bf49f",
+      "size": 8246
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:55:09+00:00",
+  "updated_at": "2026-08-01T10:56:28+00:00"
+}

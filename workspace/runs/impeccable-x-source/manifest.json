@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-x-source",
+  "authorization_mode": "collect-only",
+  "account": "tech",
+  "title": "Impeccable X 帖子资料",
+  "summary": "indie_maker_fox 分享的 Impeccable 相关帖子",
+  "state": "captured",
+  "artifacts": {
+    "source_raw": {
+      "path": "source/raw.html",
+      "sha256": "a16e039cc58659b505da7cc6448f81d8750471739d16d3c73cb4e053289ab4c7",
+      "size": 4557
+    },
+    "source_content": {
+      "path": "source/content.md",
+      "sha256": "94d988744517f2d4e65e953a4864521cc8d60bf6a1d0b208c3a764987a48c7de",
+      "size": 875
+    },
+    "source_metadata": {
+      "path": "source/metadata.json",
+      "sha256": "2f78d8a5e16bd7f1725987c00d984dfb29410a7faff61ee77c65fcc0cd0e0162",
+      "size": 266
+    },
+    "source_images": {
+      "path": "source/images.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:55:09+00:00",
+  "updated_at": "2026-08-01T10:56:35+00:00"
+}

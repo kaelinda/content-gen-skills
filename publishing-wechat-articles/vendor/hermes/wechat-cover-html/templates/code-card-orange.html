@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<!--
+  Template: code-card.html
+  Variant:  code-card (right side shows real code snippet)
+  Best for: CI/CD, Bazel, build systems, iOS 26 features, terminal output, LLDB debugging
+  Palette:  orange-red gradient (#fb923c → #f43f5e) on dark base
+  Layout:   left text 580px + right code card 400px, 45-55px padding
+  Customise: 5 zones (tag, version, title, subtitle, code), keep the same color tokens
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 540px;
+    font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0a0e 0%, #1a0a14 100%);
+    position: relative;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Grid texture */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(251,146,60,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251,146,60,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Radial glows */
+  .glow {
+    position: absolute; width: 500px; height: 500px;
+    top: -120px; right: -100px;
+    background: radial-gradient(circle, rgba(251,113,133,0.14) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .glow2 {
+    position: absolute; width: 380px; height: 380px;
+    bottom: -120px; left: 80px;
+    background: radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+
+  .container {
+    position: relative; z-index: 10;
+    display: flex; height: 100%; padding: 45px 55px;
+    align-items: center; gap: 30px;
+  }
+
+  /* ── Left text area ── */
+  .text-area {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; max-width: 580px;
+  }
+
+  /* Tag — top-left category badge */
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(251,146,60,0.12);
+    border: 1px solid rgba(251,146,60,0.3);
+    color: #fdba74;
+    font-size: 13px; font-weight: 700;
+    padding: 5px 14px; border-radius: 16px;
+    margin-bottom: 16px; width: fit-content; letter-spacing: 0.5px;
+  }
+  .tag::before {
+    content: ''; width: 6px; height: 6px;
+    background: #fdba74; border-radius: 50%;
+  }
+
+  /* Version badge */
+  .version-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .version-badge .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #7d8590;
+  }
+  .version-badge .ver {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px; font-weight: 900;
+    background: linear-gradient(90deg, #fb923c, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Title (2 lines max) */
+  .title {
+    font-size: 34px; font-weight: 900;
+    color: #f0f6fc; line-height: 1.35;
+    margin-bottom: 12px; letter-spacing: -0.5px;
+  }
+  .title .hl {
+    background: linear-gradient(90deg, #fb923c, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Subtitle (1-2 lines) */
+  .subtitle {
+    font-size: 15px; color: #7d8590; line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  /* Feature chips (4-6 max) */
+  .features {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .feature-chip {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(48,54,61,0.6);
+    border: 1px solid rgba(139,148,158,0.2);
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .feature-chip.hl {
+    border-color: rgba(251,146,60,0.3);
+    color: #fdba74;
+  }
+  .feature-chip.hl2 {
+    border-color: rgba(244,63,94,0.3);
+    color: #fda4af;
+  }
+
+  /* Author byline */
+  .author {
+    font-size: 12px; color: #484f58;
+  }
+  .author span { color: #fb923c; font-weight: 700; }
+
+  /* ── Right code card ── */
+  .code-card {
+    width: 420px; flex-shrink: 0;
+    background: rgba(22,27,34,0.95);
+    border: 1px solid rgba(251,146,60,0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .code-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid rgba(48,54,61,0.6);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+  .code-title {
+    margin-left: 8px; font-size: 12px;
+    color: #8b949e; font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-new {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(251,146,60,0.15);
+    color: #fdba74;
+    border: 1px solid rgba(251,146,60,0.3);
+  }
+
+  .code-body {
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.85;
+  }
+  /* Syntax tokens (extend as needed) */
+  .prompt { color: #fb923c; font-weight: 700; }
+  .kw { color: #ff7b72; }       /* keywords */
+  .ty { color: #79c0ff; }       /* types */
+  .fn { color: #d2a8ff; }       /* functions */
+  .str { color: #a5d6ff; }      /* strings */
+  .cm { color: #8b949e; font-style: italic; }   /* comments */
+  .num { color: #fda4af; font-weight: 700; }    /* numbers */
+  .ok { color: #86efac; font-weight: 700; }     /* success / OK */
+  .pr { color: #ffa657; }       /* parameters */
+
+  .footer-bar {
+    padding: 8px 14px;
+    background: rgba(251,146,60,0.05);
+    border-top: 1px solid rgba(48,54,61,0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-bar .src { color: #6e7681; font-size: 12px; }
+  .footer-bar .se { color: #fdba74; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+    <!-- ====== LEFT TEXT AREA ====== -->
+    <div class="text-area">
+      <div class="tag">CI/CD · iOS</div>
+
+      <div class="version-badge">
+        <span class="label">$ </span>
+        <span class="ver">Bazel Build</span>
+      </div>
+
+      <div class="title">
+        从 Linux 编译 iOS App<br>
+        <span class="hl">2703 actions / 60s 完成</span>
+      </div>
+
+      <div class="subtitle">
+        100+ 远程 Linux workers + Codex 拆模块<br>
+        remote cache 命中 79%，关键路径 19 秒
+      </div>
+
+      <div class="features">
+        <span class="feature-chip hl">rules_applecross</span>
+        <span class="feature-chip hl">Remote Execution</span>
+        <span class="feature-chip hl2">2141 cache hit</span>
+        <span class="feature-chip hl2">562 internal</span>
+        <span class="feature-chip hl">linux_x86_64</span>
+      </div>
+
+      <div class="author">
+        实验: <span>@corentinanjuna</span> · ex-Zenly · App: @Dimillian IceCubes
+      </div>
+    </div>
+
+    <!-- ====== RIGHT CODE CARD ====== -->
+    <div class="code-card">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="code-title">$ bazel build //:IceCubesApp</div>
+        <div class="badge-new">FROM LINUX</div>
+      </div>
+      <div class="code-body">
+<span class="cm"># platform: linux_x86_64</span><br>
+<span class="cm"># runner: remote (100+ workers)</span><br>
+[<span class="num">2,701</span> / <span class="num">2,703</span>] Processing IceCubesApp<br>
+&nbsp;&nbsp;signing · downloading .ipa<br><br>
+<span class="ty">Target</span> //:IceCubesApp up-to-date:<br>
+&nbsp;&nbsp;<span class="fn">bazel-bin</span>/<span class="str">IceCubesApp.ipa</span><br><br>
+<span class="ok">Elapsed</span>: 59.709s  <span class="ok">Critical</span>: 19.13s<br>
+<span class="num">2703</span> actions: <span class="ok">2141</span> cache · <span class="num">562</span> internal
+      </div>
+      <div class="footer-bar">
+        <span class="src">bazelbuild/rules_apple</span>
+        <span class="se">Linux → iOS .ipa</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

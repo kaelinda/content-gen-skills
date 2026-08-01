@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "run_id": "impeccable-style-guide",
+  "authorization_mode": "prepare-only",
+  "account": "tech",
+  "title": "Impeccable 实战指南：从安装到现有前端工程接入",
+  "summary": "一套面向 Claude Code、Codex 等 AI 编程工具的前端设计协作方法：用产品与设计上下文约束生成，用审计、浏览器迭代和 CI 检测把改造过程接入现有工程。",
+  "state": "rendered",
+  "artifacts": {
+    "article_markdown": {
+      "path": "article.md",
+      "sha256": "cb2eff7fad006b9a77d58571f263165cde7204c753f482b6a43ad27e64ac7a1b",
+      "size": 12055
+    },
+    "title_quality_report": {
+      "path": "title-quality.json",
+      "sha256": "603f5200632802d4e66d414aec34e912f5c44284a0a8d9ec35225ba8bf2f3b9b",
+      "size": 499
+    },
+    "quality_report": {
+      "path": "quality.json",
+      "sha256": "c6aef6fd686e96ee95c936fbfdbde601b126055f132b14d6f45a6bf6f68b220c",
+      "size": 69
+    },
+    "cover_png": {
+      "path": "cover.png",
+      "sha256": "0006b7b9b363bc1e435a0fd0ac6af6fe6920fef084226117b1e0a92d6c780ae1",
+      "size": 68824
+    },
+    "article_html": {
+      "path": "article.html",
+      "sha256": "f8d6fe60950faaf3ca6a43e4186460b42533464bb23afee933692dfc8a35d963",
+      "size": 56561
+    },
+    "cover_html": {
+      "path": "cover.html",
+      "sha256": "9f88ec68354e6df3a04d837618129b99e5fedcb9bd619da14107a63953163959",
+      "size": 1255
+    }
+  },
+  "external": {},
+  "errors": [],
+  "created_at": "2026-08-01T10:59:19+00:00",
+  "updated_at": "2026-08-01T11:03:48+00:00"
+}
