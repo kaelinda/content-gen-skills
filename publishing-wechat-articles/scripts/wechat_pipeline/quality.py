@@ -61,13 +61,21 @@ def _without_frontmatter(markdown: str) -> str:
     return markdown
 
 
-def check_article(markdown: str, rendered_html: str | None = None) -> QualityReport:
+def check_article(
+    markdown: str,
+    rendered_html: str | None = None,
+    *,
+    author_voice: bool = False,
+) -> QualityReport:
     findings: list[Finding] = []
     code_free = _without_code(markdown)
     for pattern, label in BANNED_PATTERNS:
         matches = list(re.finditer(pattern, code_free, flags=re.MULTILINE))
         if matches:
-            findings.append(Finding("banned-word", "error", f"禁用表达: {label}", {"count": len(matches)}))
+            code = "generic-language" if author_voice else "banned-word"
+            severity = "warning" if author_voice else "error"
+            message = f"通用表达，需结合作者判断复核: {label}" if author_voice else f"禁用表达: {label}"
+            findings.append(Finding(code, severity, message, {"count": len(matches)}))
 
     body = _without_code(_without_frontmatter(markdown))
     rules = re.findall(r"(?m)^\s*(?:---+|\*\*\*+)\s*$", body)

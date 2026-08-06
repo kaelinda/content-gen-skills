@@ -19,7 +19,18 @@ from wechat_pipeline.preflight import run_preflight
 
 class CliTest(unittest.TestCase):
     def test_all_commands_expose_help(self):
-        for command in ("preflight", "plan", "capture", "retitle", "prepare", "status", "publish", "resume"):
+        for command in (
+            "preflight",
+            "plan",
+            "capture",
+            "brief",
+            "voice-review",
+            "retitle",
+            "prepare",
+            "status",
+            "publish",
+            "resume",
+        ):
             with self.subTest(command=command):
                 result = subprocess.run(
                     [sys.executable, str(CLI), command, "--help"],
@@ -39,6 +50,46 @@ class CliTest(unittest.TestCase):
         publish_config = replace(config, runtime=empty_runtime)
         publish_report = run_preflight(publish_config, "publish", "tech", playwright_available=True)
         self.assertIn("oss_credentials", publish_report.failures)
+
+    def test_preflight_checks_voice_files_only_when_advanced_mode_is_requested(self):
+        config = load_repository_config(SKILL)
+        broken = replace(config, voice_author_path=Path("missing-author.toml"))
+
+        default_report = run_preflight(
+            broken,
+            "prepare-only",
+            "tech",
+            playwright_available=True,
+        )
+        voice_report = run_preflight(
+            broken,
+            "prepare-only",
+            "tech",
+            author_voice=True,
+            playwright_available=True,
+        )
+
+        self.assertNotIn("voice_profile", default_report.failures)
+        self.assertIn("voice_profile", voice_report.failures)
+
+    def test_author_voice_preflight_rejects_malformed_profile(self):
+        config = load_repository_config(SKILL)
+        with tempfile.TemporaryDirectory() as tmp:
+            malformed = Path(tmp) / "author.toml"
+            malformed.write_text("not valid = [", encoding="utf-8")
+            broken = replace(config, voice_author_path=malformed)
+
+            report = run_preflight(
+                broken,
+                "prepare-only",
+                "tech",
+                author_voice=True,
+                playwright_available=True,
+            )
+
+        self.assertIn("voice_profile", report.failures)
+        check = next(item for item in report.checks if item.name == "voice_profile")
+        self.assertEqual(check.status, "invalid")
 
     def test_plan_and_status_roundtrip_with_json(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -90,6 +141,33 @@ class CliTest(unittest.TestCase):
             revised = json.loads(retitle.stdout)
             self.assertEqual(revised["title"], "Swift Agent 工程化实战：从原型到稳定上线")
             self.assertEqual(revised["state"], "planned")
+
+    def test_plan_author_voice_is_explicit_opt_in(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(CLI),
+                    "--workspace",
+                    tmp,
+                    "plan",
+                    "--title",
+                    "Swift Agent 工程化实战",
+                    "--summary",
+                    "Summary",
+                    "--run-id",
+                    "voice-cli-run",
+                    "--author-voice",
+                    "--json",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            payload = json.loads(result.stdout)
+            self.assertTrue(payload["editorial"]["author_voice_enabled"])
+            self.assertIn("voice_context", payload["artifacts"])
 
     def test_publish_requires_commit_flag(self):
         result = subprocess.run(

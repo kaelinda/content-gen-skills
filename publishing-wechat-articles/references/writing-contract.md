@@ -29,6 +29,8 @@ Never claim a source says something that was inferred. Mark inference and verify
 
 Do not mix parenting language into a technical article or technical-brand assumptions into a parenting article.
 
+The table above is the default account-level voice. For an optional author-voice run created with `plan --author-voice`, use the run-local `voice-context.json` and follow `references/author-voice-contract.md`. Create and ingest `author-brief.json` before drafting, then ingest a passing `voice-review.json` after the body is complete. This advanced workflow is not required for normal runs.
+
 ## Title, Summary, And Cover
 
 - Produce three title candidates, then select one final title before rendering.

@@ -36,6 +36,29 @@ python3 publishing-wechat-articles/scripts/pipeline.py plan \
 python3 publishing-wechat-articles/scripts/pipeline.py capture RUN_ID "https://example.com/source" --json
 ```
 
+### 可选进阶配置: 作者声音
+
+默认流程不要求作者声音产物。只有当用户需要注入稳定的作者视角、判断和证据时，才为本次写作 Run 显式启用：
+
+```bash
+python3 publishing-wechat-articles/scripts/pipeline.py preflight \
+  --mode prepare-only --title "文章标题" --author-voice --json
+python3 publishing-wechat-articles/scripts/pipeline.py plan \
+  --mode prepare-only --title "文章标题" --summary "文章摘要" \
+  --author-voice --json
+```
+
+启用后，在写正文前读取 `references/author-voice-contract.md`，完成并导入 `author-brief.json`；正文完成后导入绑定当前正文哈希的 `voice-review.json`：
+
+```bash
+python3 publishing-wechat-articles/scripts/pipeline.py brief RUN_ID \
+  --input /absolute/path/to/author-brief.input.json --json
+python3 publishing-wechat-articles/scripts/pipeline.py voice-review RUN_ID \
+  --input /absolute/path/to/voice-review.input.json --json
+```
+
+未使用 `--author-voice` 创建的 Run 不读取这些产物，也不增加新的准备门禁。作者声音只改变本地写作与质检，不构成发布授权。
+
 Write the final article to `workspace/runs/RUN_ID/article.md`. Editorial writing remains the agent's responsibility; do not publish a source transcript as an original article.
 
 `prepare` first runs 标题校验 against the completed body, then checks the article, then generates the Cover and HTML. The title must score at least 80, match正文重点, show a concrete value signal, and avoid sensational language. The result is stored in `title-quality.json`.
@@ -81,6 +104,7 @@ Every run persists `manifest.json` with state, relative artifact paths, SHA-256 
 ## Read Local Contracts
 
 - Read `references/writing-contract.md` before capture and editorial work.
+- Read `references/author-voice-contract.md` only after explicitly enabling `--author-voice`.
 - Read `references/publishing-contract.md` before any external write.
 - Use `references/resource-map.md` to locate repository assets and configuration.
 - Read `references/troubleshooting.md` after a failed stage.

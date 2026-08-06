@@ -15,6 +15,7 @@ All paths are relative to the repository root. The canonical entry point is `pub
 | Markdown rendering | `publishing-wechat-articles/scripts/wechat_pipeline/render.py` |
 | Cover rendering | `publishing-wechat-articles/scripts/wechat_pipeline/cover.py` |
 | Durable state | `publishing-wechat-articles/scripts/wechat_pipeline/manifest.py` |
+| Optional author voice | `publishing-wechat-articles/scripts/wechat_pipeline/voice.py` |
 | Orchestration | `publishing-wechat-articles/scripts/wechat_pipeline/orchestrator.py` |
 | OSS and Feishu | `publishing-wechat-articles/scripts/wechat_pipeline/oss.py`, `feishu.py`, `publish.py` |
 
@@ -37,7 +38,10 @@ The `vendor/hermes/` tree is a copied, redacted source snapshot. Runtime code mu
 - Runs: `workspace/runs/<run_id>/`
 - Technical vault: `workspace/vaults/tech/`
 - Parenting vault: `workspace/vaults/parenting/`
+- Optional voice evidence: `workspace/vaults/<account>/voice/evidence.toml` plus repository-local relative evidence files
 - Each run owns its raw source, article Markdown, quality report, cover, HTML, and `manifest.json`.
+
+Runs created with `plan --author-voice` additionally own `voice-context.json`, `author-brief.json`, and `voice-review.json`. Checked-in defaults live in `publishing-wechat-articles/config/voice/`; the context snapshot never contains private evidence bodies.
 
 The entire `workspace/` directory is local operational state and is ignored by version control.
 

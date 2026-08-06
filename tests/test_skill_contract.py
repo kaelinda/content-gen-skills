@@ -18,6 +18,7 @@ class SkillContractTest(unittest.TestCase):
             "scripts/preflight.py",
             "references/resource-map.md",
             "references/writing-contract.md",
+            "references/author-voice-contract.md",
             "references/publishing-contract.md",
             "references/troubleshooting.md",
         ]
@@ -41,6 +42,20 @@ class SkillContractTest(unittest.TestCase):
             self.assertIn(phrase, text)
 
         self.assertLess(text.index("标题校验"), text.index("Cover"))
+
+    def test_skill_declares_author_voice_as_optional_advanced_workflow(self):
+        text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("--author-voice", text)
+        self.assertIn("可选进阶配置", text)
+        self.assertIn("references/author-voice-contract.md", text)
+        self.assertIn("voice-review", text)
+
+        writing = (SKILL / "references/writing-contract.md").read_text(encoding="utf-8")
+        resources = (SKILL / "references/resource-map.md").read_text(encoding="utf-8")
+        self.assertIn("author-brief.json", writing)
+        self.assertIn("voice-context.json", resources)
+        self.assertIn("workspace/vaults/<account>/voice", resources)
 
     def test_writing_contract_explains_title_quality_gate(self):
         text = (SKILL / "references/writing-contract.md").read_text()

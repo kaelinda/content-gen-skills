@@ -5,6 +5,7 @@ import importlib.util
 from pathlib import Path
 
 from .config import RepositoryConfig
+from .voice import VoiceError, load_voice_profile
 
 
 RECORD_FIELDS = {
@@ -67,12 +68,15 @@ def run_preflight(
     mode: str,
     account: str,
     *,
+    author_voice: bool = False,
     playwright_available: bool | None = None,
 ) -> PreflightReport:
     if mode not in {"collect-only", "prepare-only", "publish"}:
         raise ValueError(f"unknown mode: {mode}")
     if account not in config.accounts:
         raise ValueError(f"unknown account: {account}")
+    if author_voice and mode == "collect-only":
+        raise ValueError("author voice requires prepare-only or publish mode")
     profile = config.accounts[account]
     module_root = config.skill_root / "scripts" / "wechat_pipeline"
     checks = [
@@ -92,6 +96,18 @@ def run_preflight(
         )
         available = globals()["playwright_available"]() if playwright_available is None else playwright_available
         checks.append(PreflightCheck("playwright_chromium", "ok" if available else "missing", True))
+        if author_voice:
+            author_check = _path_check("voice_profile", config.skill_root / config.voice_author_path)
+            account_check = _path_check(
+                "voice_account_profile",
+                config.skill_root / config.voice_accounts_root / f"{account}.toml",
+            )
+            if author_check.status == "ok" and account_check.status == "ok":
+                try:
+                    load_voice_profile(config, account)
+                except VoiceError:
+                    author_check = PreflightCheck("voice_profile", "invalid", True)
+            checks.extend([author_check, account_check])
     if mode == "publish":
         runtime = config.runtime
         target = runtime.accounts.get(account)

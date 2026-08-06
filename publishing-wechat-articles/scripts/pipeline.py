@@ -28,6 +28,7 @@ def _base_parser() -> argparse.ArgumentParser:
     preflight.add_argument("--account", choices=("auto", "tech", "parenting"), default="auto")
     preflight.add_argument("--title", default="")
     preflight.add_argument("--tags", default="")
+    preflight.add_argument("--author-voice", action="store_true", help="check optional author voice configuration")
     preflight.add_argument("--json", action="store_true", dest="as_json")
 
     plan = subparsers.add_parser("plan", help="create a durable local run")
@@ -37,12 +38,23 @@ def _base_parser() -> argparse.ArgumentParser:
     plan.add_argument("--account", choices=("auto", "tech", "parenting"), default="auto")
     plan.add_argument("--mode", choices=("collect-only", "prepare-only", "publish"), default="prepare-only")
     plan.add_argument("--run-id")
+    plan.add_argument("--author-voice", action="store_true", help="enable the optional evidence-backed author voice workflow")
     plan.add_argument("--json", action="store_true", dest="as_json")
 
     capture = subparsers.add_parser("capture", help="capture a public URL into a run")
     capture.add_argument("run_id")
     capture.add_argument("url")
     capture.add_argument("--json", action="store_true", dest="as_json")
+
+    brief = subparsers.add_parser("brief", help="validate and attach an author brief to an enabled run")
+    brief.add_argument("run_id")
+    brief.add_argument("--input", type=Path, required=True)
+    brief.add_argument("--json", action="store_true", dest="as_json")
+
+    voice_review = subparsers.add_parser("voice-review", help="validate and attach an author voice review")
+    voice_review.add_argument("run_id")
+    voice_review.add_argument("--input", type=Path, required=True)
+    voice_review.add_argument("--json", action="store_true", dest="as_json")
 
     retitle = subparsers.add_parser("retitle", help="revise a run title before external publishing")
     retitle.add_argument("run_id")
@@ -96,13 +108,25 @@ def execute(args: argparse.Namespace) -> tuple[dict[str, object], int]:
     pipeline = Pipeline(config, args.workspace)
     if args.command == "preflight":
         account = config.route_account(args.account, args.title, args.tags)
-        report = run_preflight(config, args.mode, account)
+        report = run_preflight(config, args.mode, account, author_voice=args.author_voice)
         return report.to_dict(), 0 if report.ready else 1
     if args.command == "plan":
-        manifest = pipeline.plan(args.title, args.summary, args.account, tags=args.tags, mode=args.mode, run_id=args.run_id)
+        manifest = pipeline.plan(
+            args.title,
+            args.summary,
+            args.account,
+            tags=args.tags,
+            mode=args.mode,
+            run_id=args.run_id,
+            author_voice=args.author_voice,
+        )
         return _manifest_payload(manifest), 0
     if args.command == "capture":
         return _manifest_payload(pipeline.capture(args.run_id, args.url)), 0
+    if args.command == "brief":
+        return _manifest_payload(pipeline.ingest_brief(args.run_id, args.input)), 0
+    if args.command == "voice-review":
+        return _manifest_payload(pipeline.ingest_voice_review(args.run_id, args.input)), 0
     if args.command == "retitle":
         return _manifest_payload(pipeline.retitle(args.run_id, args.title, args.summary)), 0
     if args.command == "prepare":

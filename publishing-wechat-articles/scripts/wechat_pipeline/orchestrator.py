@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import uuid
@@ -14,6 +15,14 @@ from .quality import check_article
 from .render import render_markdown
 from .security import normalize_slug, safe_output_path
 from .title_quality import check_title
+from .voice import (
+    VoiceError,
+    load_evidence_ids,
+    load_voice_profile,
+    validate_article_personal_claims,
+    validate_author_brief,
+    validate_voice_review,
+)
 
 
 class PipelineError(RuntimeError):
@@ -49,14 +58,75 @@ class Pipeline:
         tags: str = "",
         mode: str = "prepare-only",
         run_id: str | None = None,
+        author_voice: bool = False,
     ) -> RunManifest:
         routed = self.config.route_account(account, title, tags)
+        if author_voice and mode == "collect-only":
+            raise PipelineError("author voice requires prepare-only or publish mode")
+        voice_profile = load_voice_profile(self.config, routed) if author_voice else None
         identifier = run_id or self._new_run_id(title)
         run_dir = self._run_dir(identifier)
         if run_dir.exists():
             raise PipelineError(f"run already exists: {identifier}")
         run_dir.mkdir(parents=True)
         manifest = RunManifest.create(identifier, mode, routed, title, summary)
+        if voice_profile is not None:
+            context_path = run_dir / "voice-context.json"
+            self._write_json(context_path, voice_profile.to_dict())
+            manifest.enable_author_voice(voice_profile.profile_version, voice_profile.profile_sha256)
+            manifest.record_artifact("voice_context", context_path, run_dir)
+        manifest.save(run_dir / "manifest.json")
+        return manifest
+
+    def ingest_brief(self, run_id: str, input_path: Path) -> RunManifest:
+        manifest = self.status(run_id)
+        self._require_voice_editable(manifest)
+        payload = self._read_json(input_path, "author brief")
+        voice_root = self.workspace_root / "vaults" / manifest.account / "voice"
+        try:
+            normalized = validate_author_brief(
+                payload,
+                expected_profile_sha256=manifest.editorial["profile_sha256"],
+                evidence_ids=load_evidence_ids(voice_root),
+            )
+        except VoiceError as exc:
+            raise PipelineError(str(exc)) from exc
+
+        run_dir = self._run_dir(run_id)
+        output_path = run_dir / "author-brief.json"
+        self._write_json(output_path, normalized)
+        manifest.record_artifact("author_brief", output_path, run_dir)
+        manifest.editorial["brief_status"] = "ready"
+        manifest.editorial["review_status"] = "missing"
+        manifest.artifacts.pop("voice_review", None)
+        (run_dir / "voice-review.json").unlink(missing_ok=True)
+        manifest.save(run_dir / "manifest.json")
+        return manifest
+
+    def ingest_voice_review(self, run_id: str, input_path: Path) -> RunManifest:
+        manifest = self.status(run_id)
+        self._require_voice_editable(manifest)
+        if manifest.editorial.get("brief_status") != "ready":
+            raise PipelineError("author brief is required before voice review")
+        run_dir = self._run_dir(run_id)
+        article_path = run_dir / "article.md"
+        if not article_path.is_file():
+            raise PipelineError(f"editorial Markdown is required: {article_path}")
+        article_hash = self._sha256(article_path)
+        payload = self._read_json(input_path, "voice review")
+        try:
+            normalized = validate_voice_review(
+                payload,
+                expected_article_sha256=article_hash,
+                article_markdown=article_path.read_text(encoding="utf-8"),
+            )
+        except VoiceError as exc:
+            raise PipelineError(str(exc)) from exc
+
+        output_path = run_dir / "voice-review.json"
+        self._write_json(output_path, normalized)
+        manifest.record_artifact("voice_review", output_path, run_dir)
+        manifest.editorial["review_status"] = normalized["decision"]
         manifest.save(run_dir / "manifest.json")
         return manifest
 
@@ -92,6 +162,9 @@ class Pipeline:
         manifest.record_artifact("article_markdown", article_path, run_dir)
         manifest.save(run_dir / "manifest.json")
 
+        if manifest.requires_voice:
+            self._verify_voice_gate(manifest, run_dir, article_path)
+
         markdown = article_path.read_text(encoding="utf-8")
         title_report = check_title(manifest.title, markdown)
         title_quality_path = run_dir / "title-quality.json"
@@ -111,7 +184,7 @@ class Pipeline:
         rendered = render_markdown(markdown, theme_css, title=manifest.title)
         article_html = run_dir / "article.html"
         article_html.write_text(rendered, encoding="utf-8")
-        report = check_article(markdown, rendered)
+        report = check_article(markdown, rendered, author_voice=manifest.requires_voice)
         quality_path = run_dir / "quality.json"
         quality_path.write_text(json.dumps(report.to_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         manifest.record_artifact("quality_report", quality_path, run_dir)
@@ -159,6 +232,103 @@ class Pipeline:
         if not path.is_file():
             raise PipelineError(f"run not found: {run_id}")
         return RunManifest.load(path)
+
+    @staticmethod
+    def _write_json(path: Path, payload: dict[str, object]) -> None:
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    @staticmethod
+    def _read_json(path: Path, label: str) -> object:
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PipelineError(f"invalid {label} input: {path}") from exc
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def _verify_voice_gate(self, manifest: RunManifest, run_dir: Path, article_path: Path) -> None:
+        if manifest.editorial.get("brief_status") != "ready" or "author_brief" not in manifest.artifacts:
+            self._fail_voice_gate(manifest, run_dir, "author brief is required", brief_status="missing")
+        if manifest.editorial.get("review_status") == "revise":
+            self._fail_voice_gate(manifest, run_dir, "voice review must pass before prepare")
+        if manifest.editorial.get("review_status") != "pass" or "voice_review" not in manifest.artifacts:
+            self._fail_voice_gate(manifest, run_dir, "voice review is required", review_status="missing")
+
+        for name in ("voice_context", "author_brief", "voice_review"):
+            self._verify_recorded_artifact(manifest, run_dir, name)
+
+        brief_path = run_dir / manifest.artifacts["author_brief"]["path"]
+        review_path = run_dir / manifest.artifacts["voice_review"]["path"]
+        brief = self._read_json(brief_path, "author brief")
+        review = self._read_json(review_path, "voice review")
+        voice_root = self.workspace_root / "vaults" / manifest.account / "voice"
+        try:
+            normalized_brief = validate_author_brief(
+                brief,
+                expected_profile_sha256=manifest.editorial["profile_sha256"],
+                evidence_ids=load_evidence_ids(voice_root),
+            )
+            validate_article_personal_claims(
+                article_path.read_text(encoding="utf-8"),
+                normalized_brief,
+            )
+            validate_voice_review(
+                review,
+                expected_article_sha256=self._sha256(article_path),
+                article_markdown=article_path.read_text(encoding="utf-8"),
+            )
+        except VoiceError as exc:
+            if "article_sha256" in str(exc):
+                self._fail_voice_gate(manifest, run_dir, "stale voice review", review_status="stale")
+            self._fail_voice_gate(manifest, run_dir, str(exc))
+        if review["decision"] != "pass":
+            self._fail_voice_gate(manifest, run_dir, "voice review must pass before prepare")
+
+    def _verify_recorded_artifact(self, manifest: RunManifest, run_dir: Path, name: str) -> None:
+        artifact = manifest.artifacts.get(name)
+        if not artifact or not isinstance(artifact.get("path"), str):
+            self._fail_voice_gate(manifest, run_dir, f"{name} artifact is missing")
+        path = (run_dir / artifact["path"]).resolve()
+        try:
+            path.relative_to(run_dir.resolve())
+        except ValueError:
+            self._fail_voice_gate(manifest, run_dir, f"{name} artifact path is invalid")
+        if not path.is_file() or self._sha256(path) != artifact.get("sha256"):
+            self._fail_voice_gate(manifest, run_dir, f"{name} artifact changed after validation")
+
+    @staticmethod
+    def _fail_voice_gate(
+        manifest: RunManifest,
+        run_dir: Path,
+        message: str,
+        *,
+        brief_status: str | None = None,
+        review_status: str | None = None,
+    ) -> None:
+        if brief_status is not None:
+            manifest.editorial["brief_status"] = brief_status
+        if review_status is not None:
+            manifest.editorial["review_status"] = review_status
+        manifest.transition(Stage.NEEDS_REVIEW)
+        manifest.errors.append({"stage": "author_voice", "message": message})
+        manifest.save(run_dir / "manifest.json")
+        raise PipelineError(message)
+
+    @staticmethod
+    def _require_voice_editable(manifest: RunManifest) -> None:
+        if not manifest.requires_voice:
+            raise PipelineError("author voice is not enabled for this run")
+        if manifest.state in {
+            Stage.RENDERED,
+            Stage.UPLOADED,
+            Stage.HANDED_OFF,
+            Stage.RECORDED,
+            Stage.PUBLISHED,
+            Stage.NEEDS_RECONCILE,
+        }:
+            raise PipelineError(f"author voice cannot be revised from {manifest.state.value}")
 
     @staticmethod
     def _new_run_id(title: str) -> str:

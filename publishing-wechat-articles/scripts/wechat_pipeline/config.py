@@ -51,6 +51,8 @@ class RepositoryConfig:
     skill_root: Path
     repository_root: Path
     runtime_path: Path
+    voice_author_path: Path
+    voice_accounts_root: Path
     schema_version: int
     oss: OssConfig
     runtime: RuntimeConfig
@@ -97,6 +99,8 @@ def load_repository_config(skill_root: Path | None = None) -> RepositoryConfig:
         skill_root=resolved_skill,
         repository_root=resolved_skill.parent,
         runtime_path=runtime_path,
+        voice_author_path=Path("config/voice/author.toml"),
+        voice_accounts_root=Path("config/voice/accounts"),
         schema_version=int(data["schema_version"]),
         oss=OssConfig(**data["oss"]),
         runtime=RuntimeConfig(

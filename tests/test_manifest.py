@@ -35,6 +35,21 @@ class ManifestTest(unittest.TestCase):
         with self.assertRaises(ManifestError):
             manifest.transition(Stage.UPLOADED)
 
+    def test_author_voice_is_optional_and_roundtrips_when_enabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "manifest.json"
+            manifest = RunManifest.create("run-fixed", "prepare-only", "tech", "Title", "Summary")
+            self.assertFalse(manifest.requires_voice)
+
+            manifest.enable_author_voice("2026-08-06", "a" * 64)
+            manifest.save(path)
+
+            loaded = RunManifest.load(path)
+            self.assertTrue(loaded.requires_voice)
+            self.assertEqual(loaded.editorial["profile_sha256"], "a" * 64)
+            self.assertEqual(loaded.editorial["brief_status"], "missing")
+            self.assertEqual(loaded.editorial["review_status"], "missing")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,6 +44,7 @@ class RunManifest:
     state: Stage = Stage.PLANNED
     schema_version: int = 1
     artifacts: dict[str, dict[str, Any]] = field(default_factory=dict)
+    editorial: dict[str, Any] = field(default_factory=dict)
     external: dict[str, Any] = field(default_factory=dict)
     errors: list[dict[str, Any]] = field(default_factory=list)
     created_at: str = field(default_factory=_now)
@@ -61,6 +62,22 @@ class RunManifest:
         if state not in TRANSITIONS[self.state]:
             raise ManifestError(f"invalid transition: {self.state.value} -> {state.value}")
         self.state = state
+        self.updated_at = _now()
+
+    @property
+    def requires_voice(self) -> bool:
+        return self.editorial.get("author_voice_enabled") is True
+
+    def enable_author_voice(self, profile_version: str, profile_sha256: str) -> None:
+        if len(profile_sha256) != 64 or any(character not in "0123456789abcdef" for character in profile_sha256):
+            raise ManifestError("profile_sha256 must be a SHA-256 digest")
+        self.editorial = {
+            "author_voice_enabled": True,
+            "profile_version": profile_version,
+            "profile_sha256": profile_sha256,
+            "brief_status": "missing",
+            "review_status": "missing",
+        }
         self.updated_at = _now()
 
     def record_artifact(self, name: str, path: Path, run_dir: Path) -> None:
@@ -98,6 +115,7 @@ class RunManifest:
             "summary": self.summary,
             "state": self.state.value,
             "artifacts": self.artifacts,
+            "editorial": self.editorial,
             "external": self.external,
             "errors": self.errors,
             "created_at": self.created_at,
@@ -129,6 +147,7 @@ class RunManifest:
                 summary=data["summary"],
                 state=Stage(data["state"]),
                 artifacts=data.get("artifacts", {}),
+                editorial=data.get("editorial", {}),
                 external=data.get("external", {}),
                 errors=data.get("errors", []),
                 created_at=data["created_at"],
