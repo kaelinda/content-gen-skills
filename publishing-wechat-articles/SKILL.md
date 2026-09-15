@@ -5,7 +5,12 @@ description: Use when collecting a URL or topic, writing or revising a Chinese W
 
 # Publishing WeChat Articles
 
-## Overview
+## Research and editorial readiness
+
+Before writing, create and pass a `research.json` dossier with `research-check`. It must identify the reader and concrete benefit, record the actual duplicate-check scope, list read official and supplementary sources, map material claims to source IDs, classify claims, and state limitations. `prepare` rechecks this dossier when present and blocks invalid or deleted evidence records. This validator checks record completeness and boundaries; it does not prove facts.
+
+The editorial standard is to prepare an article as a gift for a specific friend: keep only material that solves their problem, adds a decision/checklist/implementation or honest boundary, and is worth their reading time. Official X posts are leads, not sufficient evidence. Prefer official site images that directly explain a section; use descriptive alt text and contextual explanation. Design a separate cover with the configured `gpt-image-2` provider only after explicit cost authorization; never claim a template or source image was AI-generated.
+
 
 Use the repository-local CLI as the only execution entry point. Code, templates, themes, references, account settings, and private runtime settings all live under `publishing-wechat-articles/`; the pipeline never reads an external Skill installation or credential environment variable.
 
@@ -104,6 +109,8 @@ Every run persists `manifest.json` with state, relative artifact paths, SHA-256 
 ## Read Local Contracts
 
 - Read `references/writing-contract.md` before capture and editorial work.
+- Read `references/selection-research-contract.md` before selecting, collecting, or researching a topic; write and pass `research.json` with `research-check` for every new editorial run.
+- Read `references/image-generation-contract.md` before using the optional GPT image provider. Image generation is opt-in and separately cost-authorized; `prepare-only` never calls it.
 - Read `references/author-voice-contract.md` only after explicitly enabling `--author-voice`.
 - Read `references/publishing-contract.md` before any external write.
 - Use `references/resource-map.md` to locate repository assets and configuration.

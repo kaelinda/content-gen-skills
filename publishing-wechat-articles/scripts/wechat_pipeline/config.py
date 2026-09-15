@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 import tomllib
 
@@ -34,6 +34,16 @@ class RuntimeAccount:
 
 
 @dataclass(frozen=True)
+class ImageGenerationConfig:
+    enabled: bool = False
+    endpoint: str = "https://api.openai.com/v1/images/generations"
+    api_key: str = field(default="", repr=False)
+    model: str = "gpt-image-2"
+    timeout_seconds: float = 120
+    allowed_download_hosts: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class RuntimeConfig:
     oss_access_key_id: str
     oss_access_key_secret: str
@@ -44,6 +54,7 @@ class RuntimeConfig:
     parenting_app_id: str
     parenting_app_secret: str
     accounts: dict[str, RuntimeAccount]
+    image_generation: ImageGenerationConfig = field(default_factory=ImageGenerationConfig)
 
 
 @dataclass(frozen=True)
@@ -113,6 +124,16 @@ def load_repository_config(skill_root: Path | None = None) -> RepositoryConfig:
             parenting_app_id=runtime_data["feishu"]["parenting_app_id"],
             parenting_app_secret=runtime_data["feishu"]["parenting_app_secret"],
             accounts={name: RuntimeAccount(**raw) for name, raw in runtime_data["accounts"].items()},
+            image_generation=ImageGenerationConfig(
+                enabled=runtime_data.get("image_generation", {}).get("enabled", False),
+                endpoint=runtime_data.get("image_generation", {}).get(
+                    "endpoint", "https://api.openai.com/v1/images/generations"),
+                api_key=runtime_data.get("image_generation", {}).get("api_key", ""),
+                model=runtime_data.get("image_generation", {}).get("model", "gpt-image-2"),
+                timeout_seconds=runtime_data.get("image_generation", {}).get("timeout_seconds", 120),
+                allowed_download_hosts=tuple(runtime_data.get("image_generation", {}).get(
+                    "allowed_download_hosts", ())),
+            ),
         ),
         accounts=accounts,
     )

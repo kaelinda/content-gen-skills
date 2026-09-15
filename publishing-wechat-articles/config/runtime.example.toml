@@ -21,3 +21,16 @@ table_id = ""
 chat_id = ""
 base_token = ""
 table_id = ""
+
+# Optional paid generation. Enabling does NOT authorize a request: the caller
+# must also explicitly authorize cost for each generation (CLI: cover --commit).
+# Copy settings into runtime.local.toml; never put real credentials in this file.
+[image_generation]
+enabled = false
+endpoint = "https://api.openai.com/v1/images/generations"
+api_key = ""
+model = "gpt-image-2"
+timeout_seconds = 120
+# Exact HTTPS CDN hostnames only; empty means URL responses are rejected.
+# Base64 responses need no download allowlist. Wildcards are not supported.
+allowed_download_hosts = []

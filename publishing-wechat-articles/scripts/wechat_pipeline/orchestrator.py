@@ -162,6 +162,24 @@ class Pipeline:
         manifest.record_artifact("article_markdown", article_path, run_dir)
         manifest.save(run_dir / "manifest.json")
 
+        research_path = run_dir / "research.json"
+        if research_path.exists() or "research_dossier" in manifest.artifacts:
+            from .research import check_research
+            try:
+                report = check_research(json.loads(research_path.read_text(encoding="utf-8")))
+            except (OSError, ValueError):
+                report = {"passed": False, "findings": ["research.json is missing or invalid"]}
+            report_path = run_dir / "research-quality.json"
+            self._write_json(report_path, report)
+            manifest.record_artifact("research_quality_report", report_path, run_dir)
+            if research_path.is_file():
+                manifest.record_artifact("research_dossier", research_path, run_dir)
+            if not report["passed"]:
+                manifest.transition(Stage.NEEDS_REVIEW)
+                manifest.save(run_dir / "manifest.json")
+                raise PipelineError("research evidence checks contain blocking findings")
+            manifest.save(run_dir / "manifest.json")
+
         if manifest.requires_voice:
             self._verify_voice_gate(manifest, run_dir, article_path)
 

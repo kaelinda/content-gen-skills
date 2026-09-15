@@ -56,6 +56,10 @@ def _base_parser() -> argparse.ArgumentParser:
     voice_review.add_argument("--input", type=Path, required=True)
     voice_review.add_argument("--json", action="store_true", dest="as_json")
 
+    research = subparsers.add_parser("research-check", help="validate a local reader-value and evidence dossier (no fact verification)")
+    research.add_argument("--input", type=Path, required=True)
+    research.add_argument("--json", action="store_true", dest="as_json")
+
     retitle = subparsers.add_parser("retitle", help="revise a run title before external publishing")
     retitle.add_argument("run_id")
     retitle.add_argument("--title", required=True)
@@ -106,6 +110,12 @@ def _publisher(config) -> Publisher:
 def execute(args: argparse.Namespace) -> tuple[dict[str, object], int]:
     config = load_repository_config(SKILL_ROOT)
     pipeline = Pipeline(config, args.workspace)
+    if args.command == "research-check":
+        from wechat_pipeline.research import check_research
+        report = check_research(json.loads(args.input.read_text(encoding="utf-8")))
+        report["ready"] = report["passed"]
+        report["failures"] = report["findings"]
+        return report, 0 if report["passed"] else 1
     if args.command == "preflight":
         account = config.route_account(args.account, args.title, args.tags)
         report = run_preflight(config, args.mode, account, author_voice=args.author_voice)
