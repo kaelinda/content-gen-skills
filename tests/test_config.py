@@ -3,6 +3,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,24 @@ class RepositoryConfigTest(unittest.TestCase):
         )
         self.assertNotIn("os.environ", active_source)
         self.assertNotIn(".hermes", active_source)
+
+    def test_environment_values_override_local_runtime_without_printing_them(self):
+        values = {
+            "OSS_ACCESS_KEY_ID": "env-ak",
+            "OSS_ACCESS_KEY_SECRET": "env-sk",
+            "OSS_BUCKET": "env-bucket",
+            "FEISHU_TECH_APP_ID": "env-tech-app",
+            "FEISHU_TECH_APP_SECRET": "env-tech-secret",
+            "FEISHU_TECH_CHAT_ID": "env-tech-chat",
+            "FEISHU_TECH_BASE_ID": "env-tech-base",
+            "FEISHU_TECH_TABLE_ID": "env-tech-table",
+        }
+        with patch.dict("os.environ", values, clear=False):
+            config = load_repository_config(ROOT / "publishing-wechat-articles")
+        self.assertEqual(config.runtime_source, "environment")
+        self.assertEqual(config.oss.bucket, "env-bucket")
+        self.assertEqual(config.runtime.oss_access_key_id, "env-ak")
+        self.assertEqual(config.runtime.accounts["tech"].table_id, "env-tech-table")
 
 
 if __name__ == "__main__":

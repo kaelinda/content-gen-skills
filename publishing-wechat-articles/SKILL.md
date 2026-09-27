@@ -12,7 +12,7 @@ Before writing, create and pass a `research.json` dossier with `research-check`.
 The editorial standard is to prepare an article as a gift for a specific friend: keep only material that solves their problem, adds a decision/checklist/implementation or honest boundary, and is worth their reading time. Official X posts are leads, not sufficient evidence. Prefer official site images that directly explain a section; use descriptive alt text and contextual explanation. Design a separate cover with the configured `gpt-image-2` provider only after explicit cost authorization; never claim a template or source image was AI-generated.
 
 
-Use the repository-local CLI as the only execution entry point. Code, templates, themes, references, account settings, and private runtime settings all live under `publishing-wechat-articles/`; the pipeline never reads an external Skill installation or credential environment variable.
+Use the repository-local CLI as the only execution entry point. Code, templates, themes, references, account settings, and private runtime settings all live under `publishing-wechat-articles/`; the pipeline never reads an external Skill installation. Runtime credentials come from the environment first, with the repository-local `config/runtime.local.toml` as a development fallback.
 
 ## Choose A Mode
 
@@ -110,6 +110,8 @@ Every run persists `manifest.json` with state, relative artifact paths, SHA-256 
 
 - Read `references/writing-contract.md` before capture and editorial work.
 - Read `references/selection-research-contract.md` before selecting, collecting, or researching a topic; write and pass `research.json` with `research-check` for every new editorial run.
+- Use `references/workflow.md` for the complete state and authorization sequence, and
+  `references/environment-variables.md` for the repository-local credential boundary.
 - Read `references/image-generation-contract.md` before using the optional GPT image provider. Image generation is opt-in and separately cost-authorized; `prepare-only` never calls it.
 - Read `references/author-voice-contract.md` only after explicitly enabling `--author-voice`.
 - Read `references/publishing-contract.md` before any external write.
@@ -129,4 +131,5 @@ Report content, local assets, upload, handoff, tracking, and WeChat confirmation
 - Treating an attractive title as permission to use clickbait, unsupported superlatives, or repeated exclamation marks.
 - Editing `manifest.json` by hand after title failure instead of using `retitle`.
 - Changing the title without regenerating the cover.
+- Treating an automatic quality pass as proof of factual accuracy, image usability or public publication.
 - Executing scripts under `vendor/hermes/`; they are reference snapshots, not runtime entry points.

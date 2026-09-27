@@ -1,4 +1,5 @@
 publishing-wechat-articles/config/runtime.local.toml
+.env
 workspace/
 __pycache__/
 *.pyc

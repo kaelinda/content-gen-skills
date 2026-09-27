@@ -126,4 +126,14 @@ def run_preflight(
                 ),
             ]
         )
+        if config.runtime_source == "environment":
+            checks = tuple(
+                PreflightCheck(
+                    item.name,
+                    "ok" if item.name == "runtime_permissions" else item.status,
+                    item.required,
+                    "environment variables" if item.name == "runtime_permissions" else item.detail,
+                )
+                for item in checks
+            )
     return PreflightReport(mode, account, tuple(checks))

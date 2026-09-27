@@ -21,6 +21,11 @@ class SkillContractTest(unittest.TestCase):
             "references/author-voice-contract.md",
             "references/publishing-contract.md",
             "references/troubleshooting.md",
+            "references/workflow.md",
+            "references/environment-variables.md",
+            "references/migration-report.md",
+            "references/migrated-memory.md",
+            "vendor/migrated-scripts/README.md",
         ]
         for relative_path in required:
             self.assertTrue((SKILL / relative_path).is_file(), relative_path)
@@ -94,6 +99,25 @@ class SkillContractTest(unittest.TestCase):
         ]
         for pattern in forbidden:
             self.assertIsNone(re.search(pattern, content), pattern)
+
+    def test_migration_docs_keep_one_canonical_cli_and_no_env_credential_loader(self):
+        source = (ROOT / "SOURCE_OF_TRUTH.md").read_text(encoding="utf-8")
+        environment = (SKILL / "references/environment-variables.md").read_text(encoding="utf-8")
+        migration = (SKILL / "references/migration-report.md").read_text(encoding="utf-8")
+        self.assertIn("scripts/pipeline.py", source)
+        self.assertIn("环境变量是推荐的部署输入", environment)
+        self.assertIn("python3 -m compileall", migration)
+
+    def test_migrated_snapshots_are_present_and_redacted(self):
+        root = SKILL / "vendor" / "migrated-skills"
+        self.assertTrue((root / "README.md").is_file())
+        snapshots = list(root.glob("*/SKILL.md"))
+        self.assertGreaterEqual(len(snapshots), 5)
+        content = "\n".join(path.read_text(encoding="utf-8") for path in snapshots)
+        for forbidden in ("/Users/nowcoder", "LTAI", "oc_", "B4kU", "ZP35"):
+            self.assertNotIn(forbidden, content)
+        self.assertTrue((SKILL / "references" / "migrated-memory.md").is_file())
+        self.assertTrue((ROOT / ".env.example").is_file())
 
     def test_preflight_routes_parenting_content(self):
         result = subprocess.run(

@@ -202,7 +202,12 @@ class Pipeline:
         rendered = render_markdown(markdown, theme_css, title=manifest.title)
         article_html = run_dir / "article.html"
         article_html.write_text(rendered, encoding="utf-8")
-        report = check_article(markdown, rendered, author_voice=manifest.requires_voice)
+        report = check_article(
+            markdown,
+            rendered,
+            author_voice=manifest.requires_voice,
+            account=manifest.account,
+        )
         quality_path = run_dir / "quality.json"
         quality_path.write_text(json.dumps(report.to_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         manifest.record_artifact("quality_report", quality_path, run_dir)

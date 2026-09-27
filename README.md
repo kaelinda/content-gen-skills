@@ -2,6 +2,10 @@
 
 一个仓库内自包含的公众号文章协作流水线，同时支持 Codex 和 Claude Code。它可以完成公开资料抓取、知识库归档、中文文章质检、标题评分、主题 HTML 渲染和 1200×540 封面生成；只有显式授权后才允许执行 OSS 与飞书写操作。
 
+项目的边界和迁移映射见 [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md)、
+[references/workflow.md](publishing-wechat-articles/references/workflow.md) 和
+[references/migration-report.md](publishing-wechat-articles/references/migration-report.md)。
+
 ## 能力
 
 - 一个规范入口：`publishing-wechat-articles/SKILL.md`
@@ -9,6 +13,8 @@
 - Codex 与 Claude Code 共享同一份 Skill，不复制规则
 - 技术号与育儿号分别使用极客黑和橙心主题
 - 标题评分、禁用词、正文结构和长度门禁
+- frontmatter、链接/图片、代码围栏、Markdown 表格、残留 marker 和敏感信息审核
+- 技术号与育儿号的频道差异化审核提示
 - SSRF 防护、HTTPS 校验、重定向复核和下载大小限制
 - 可恢复的运行清单、产物 SHA-256 与外部操作幂等检查
 - 仓库内置 Hermes 参考资源，不读取 `~/.hermes`
@@ -22,6 +28,17 @@
 ```bash
 python3 -m pip install -r requirements.txt
 python3 -m playwright install chromium
+```
+
+部署或本地运行时，可复制 `.env.example` 为 `.env` 后导出，或直接在进程环境中设置
+同名变量。环境变量优先于 `publishing-wechat-articles/config/runtime.local.toml`；
+收录和准备不需要发布凭证，发布模式会在预检阶段检查 OSS 与飞书配置。
+
+```bash
+set -a
+source .env
+set +a
+python3 publishing-wechat-articles/scripts/preflight.py --mode prepare-only --json
 ```
 
 ## 快速开始
@@ -61,6 +78,9 @@ python3 publishing-wechat-articles/scripts/pipeline.py prepare \
 ```
 
 `prepare` 会依次执行标题校验、正文质检、封面生成和 HTML 渲染。标题得分低于 80 时，使用 `retitle` 修改标题后重新生成。
+
+质检报告写入 `workspace/runs/<run-id>/quality.json`。它包含阻断项和频道提示；自动检查
+不能替代事实、图片和移动端排版的人工终审。
 
 ## Codex 与 Claude Code
 
