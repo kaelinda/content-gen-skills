@@ -9,7 +9,7 @@ from .security import sanitize_resource_url
 
 
 BANNED_PATTERNS = (
-    (r"不是[^，。]+[，,]而是", "不是X，而是Y"),
+    (r"不是[^\n，。]+[，,]而是", "不是X，而是Y"),
     (r"与其[说]?(?:[^，。]+)[，,]不[如说]", "与其X，不如Y"),
     (r"首先.*其次.*最后", "首先...其次...最后"),
     (r"值得注意的是", "值得注意的是"),
@@ -140,6 +140,8 @@ def _table_findings(markdown: str) -> list[Finding]:
     lines = _without_frontmatter(markdown).splitlines()
     for index, line in enumerate(lines[:-1]):
         if "|" not in line or "|" not in lines[index + 1]:
+            continue
+        if not re.fullmatch(r"\s*\|?[\s:|-]+\|?\s*", lines[index + 1]):
             continue
         separator = lines[index + 1].strip().strip("|")
         cells = [cell.strip() for cell in separator.split("|")]

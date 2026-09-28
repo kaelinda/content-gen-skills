@@ -38,6 +38,27 @@ Body **bold** and `code`.
         self.assertNotIn("data:text", rendered.lower())
         self.assertIn('href="https://example.com/docs"', rendered)
 
+    def test_renders_article_tables_lists_and_mobile_overflow(self):
+        markdown = """## Results
+
+| Metric | Before | After |
+|---|---|---|
+| Top 1 | 5% | 18% |
+
+1. First
+2. Second
+
+![Chart](https://example.com/chart.png)
+"""
+        rendered = render_markdown(markdown, "")
+        self.assertIn("<table>", rendered)
+        self.assertIn("<th>Metric</th>", rendered)
+        self.assertIn("<td>18%</td>", rendered)
+        self.assertIn("<ol>", rendered)
+        self.assertIn('class="table-scroll"', rendered)
+        self.assertIn("overflow-x:auto", rendered)
+        self.assertIn('<figure><img src="https://example.com/chart.png"', rendered)
+
 
 if __name__ == "__main__":
     unittest.main()

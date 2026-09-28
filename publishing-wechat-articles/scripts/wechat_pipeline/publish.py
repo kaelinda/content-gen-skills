@@ -4,10 +4,12 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+import json
 from pathlib import Path
 import urllib.error
+from urllib.parse import quote
 
-from .feishu import FeishuClient
+from .feishu import FeishuClient, FeishuError
 from .oss import OssClient
 
 from .manifest import RunManifest
@@ -135,6 +137,87 @@ class Publisher:
         with self._delivery_lock(manifest_path):
             return self._publish_locked(manifest_path)
 
+    def reconcile_empty_upload(self, manifest_path: Path) -> RunManifest:
+        """Resume only when every deterministic object is proven absent and no handoff began."""
+        manifest_path = Path(manifest_path).resolve()
+        with self._delivery_lock(manifest_path):
+            manifest = RunManifest.load(manifest_path)
+            if manifest.state != Stage.NEEDS_RECONCILE:
+                raise PublishError("run does not need reconciliation")
+            if any(manifest.external.get(key) for key in ("cover_url", "html_url", "message_id", "record_id")):
+                raise PublishError("reconcile-empty-upload requires no persisted cover, HTML, message or record")
+            if manifest.external.get("media"):
+                raise PublishError("reconcile-empty-upload requires no persisted media uploads")
+            run_dir = manifest_path.parent
+            media_artifact = manifest.artifacts.get("media_manifest")
+            if not media_artifact:
+                raise PublishError("media manifest missing")
+            from .security import safe_output_path
+            raw = safe_output_path(run_dir, media_artifact["path"]).read_bytes()
+            if hashlib.sha256(raw).hexdigest() != media_artifact["sha256"]:
+                raise PublishError("media manifest changed after preparation")
+            urls = [item["url"] for item in json.loads(raw)["images"]]
+            for name, kind, extension in (("cover_png", "cover", ".png"), ("article_html", "article", ".html")):
+                artifact = manifest.artifacts[name]
+                key = f"{self.prefix}/{manifest.account}/{normalize_slug(manifest.title)}-{artifact['sha256'][:16]}-{kind}{extension}"
+                if not isinstance(self.oss, OssClient):
+                    raise PublishError("production OSS client is required for remote reconciliation")
+                urls.append(f"https://{self.oss.bucket}.{self.oss.endpoint}/{quote(key, safe='/')}")
+            if not callable(getattr(self.oss, "is_absent", None)):
+                raise PublishError("OSS absence verifier is missing")
+            for url in urls:
+                if not self.oss.is_absent(url):
+                    raise PublishError("an expected object exists; manual remote reconciliation is required")
+            manifest.external["reconciliation"] = {
+                "kind": "empty-upload", "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "method": "GET", "http_status": 404, "object_count": len(urls),
+            }
+            manifest.state = Stage.RENDERED
+            manifest.updated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            manifest.save(manifest_path)
+            return manifest
+
+    def reconcile_handoff(self, manifest_path: Path) -> RunManifest:
+        """Use chat history to resolve a send without an acknowledged message ID."""
+        manifest_path = Path(manifest_path).resolve()
+        with self._delivery_lock(manifest_path):
+            manifest = RunManifest.load(manifest_path)
+            if manifest.state != Stage.NEEDS_RECONCILE or manifest.external.get("record_id"):
+                raise PublishError("run is not eligible for handoff reconciliation")
+            if not manifest.external.get("cover_url") or not manifest.external.get("html_url"):
+                raise PublishError("verified cover and HTML URLs are required")
+            for name in ("cover_url", "html_url"):
+                if manifest.external.get("upload_verification", {}).get(name, {}).get("verified") is not True:
+                    raise PublishError("public upload readback is incomplete")
+            since_ms = int(datetime.fromisoformat(manifest.created_at).timestamp() * 1000)
+            expected = self.feishu.handoff_text(manifest.title, manifest.summary,
+                                               manifest.external["cover_url"], manifest.external["html_url"])
+            result = self.feishu.inspect_handoff_history(manifest.account, expected, since_ms=since_ms)
+            if not result.get("covered_since"):
+                raise PublishError("chat history did not cover the attempted handoff")
+            manifest.external["handoff_reconciliation"] = {
+                "method": "GET chat history", "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "scanned": result.get("scanned", 0), "found": result.get("found") is True,
+            }
+            if result.get("found"):
+                message_id = result.get("message_id")
+                if not isinstance(message_id, str) or not message_id:
+                    raise PublishError("matching chat message has no ID")
+                receipt = self.feishu.verify_handoff(manifest.account, message_id, manifest.title,
+                                                     manifest.summary, manifest.external["cover_url"],
+                                                     manifest.external["html_url"])
+                if receipt.get("verified") is not True:
+                    raise PublishError("matching handoff message could not be verified")
+                manifest.external["message_id"] = message_id
+                manifest.external["handoff_verification"] = receipt
+                manifest.transition(Stage.HANDED_OFF)
+                manifest.external.setdefault("delivery", {})["status"] = "handoff-reconciled"
+            else:
+                manifest.transition(Stage.UPLOADED)
+                manifest.external.setdefault("delivery", {})["status"] = "reconciled-not-sent"
+            manifest.save(manifest_path)
+            return manifest
+
     def _publish_locked(self, manifest_path: Path) -> RunManifest:
         manifest = RunManifest.load(manifest_path)
         run_dir = manifest_path.parent
@@ -200,7 +283,7 @@ class Publisher:
                     manifest.external.setdefault("delivery", {})["status"] = "pending-downstream"
                 manifest.save(manifest_path)
             return manifest
-        except (AmbiguousExternalError, TimeoutError, urllib.error.URLError) as exc:
+        except (AmbiguousExternalError, FeishuError, TimeoutError, urllib.error.URLError) as exc:
             if manifest.state != Stage.NEEDS_RECONCILE:
                 manifest.transition(Stage.NEEDS_RECONCILE)
                 manifest.errors.append({"type": "ambiguous-external-result", "message": str(exc)})
@@ -208,6 +291,7 @@ class Publisher:
             raise PublishError("external result is ambiguous; manual reconciliation required") from exc
 
     def _ensure_uploads(self, manifest: RunManifest, manifest_path: Path, run_dir: Path) -> None:
+        self._ensure_media(manifest, manifest_path, run_dir)
         entries = (
             ("cover_url", "cover_png", "cover", "image/png"),
             ("html_url", "article_html", "article", "text/html; charset=utf-8"),
@@ -242,6 +326,42 @@ class Publisher:
                     raise PublishError(f"uploaded {kind} is not publicly verifiable")
                 receipt = {"verified": False, "reason": "legacy adapter only checks metadata"}
             manifest.external.setdefault("upload_verification", {})[external_name] = receipt
+            manifest.save(manifest_path)
+
+    def _ensure_media(self, manifest: RunManifest, manifest_path: Path, run_dir: Path) -> None:
+        artifact = manifest.artifacts.get("media_manifest")
+        if not artifact:
+            return
+        from .security import safe_output_path
+        media_path = safe_output_path(run_dir, artifact["path"])
+        raw = media_path.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != artifact["sha256"]:
+            raise PublishError("media manifest changed after preparation")
+        images = json.loads(raw)["images"]
+        for image in images:
+            data = safe_output_path(run_dir, image["path"]).read_bytes()
+            digest = hashlib.sha256(data).hexdigest()
+            if digest != image["sha256"]:
+                raise PublishError("local image changed after preparation")
+            saved = manifest.external.setdefault("media", {}).get(image["sha256"])
+            if not saved:
+                url = self.oss.upload(image["key"], data, image["content_type"])
+                if url != image["url"]:
+                    raise AmbiguousExternalError("uploaded image URL differs from prepared HTML")
+                manifest.external["media"][image["sha256"]] = url
+                manifest.save(manifest_path)
+            else:
+                url = saved
+            verifier = getattr(self.oss, "verify_artifact", None)
+            if callable(verifier):
+                receipt = verifier(url, "image/", data)
+                if receipt.get("verified") is not True or receipt.get("sha256") != digest:
+                    raise PublishError("uploaded image has no byte-verification evidence")
+            else:
+                if not self.oss.verify(url, "image/"):
+                    raise PublishError("uploaded image is not publicly verifiable")
+                receipt = {"verified": False, "reason": "legacy adapter only checks metadata"}
+            manifest.external.setdefault("upload_verification", {}).setdefault("media", {})[digest] = receipt
             manifest.save(manifest_path)
 
     @staticmethod

@@ -118,7 +118,7 @@ def run_preflight(
             [
                 PreflightCheck("runtime_permissions", "ok" if config.runtime_path.stat().st_mode & 0o777 == 0o600 else "invalid", True),
                 PreflightCheck("oss_credentials", "ok" if oss_ready else "missing", True),
-                PreflightCheck("feishu_credentials", "ok" if app_id and app_secret else "missing", True),
+                PreflightCheck("feishu_credentials", "ok" if runtime.feishu_mode == "lark-cli" or (app_id and app_secret) else "missing", True),
                 PreflightCheck(
                     "feishu_target",
                     "ok" if target and target.base_token and target.table_id and (target.chat_id or runtime.primary_chat_id) else "missing",

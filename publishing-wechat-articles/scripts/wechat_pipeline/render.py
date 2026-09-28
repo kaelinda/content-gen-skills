@@ -57,7 +57,7 @@ def markdown_body(markdown: str) -> str:
     lines = _strip_frontmatter(markdown).splitlines()
     output: list[str] = []
     paragraph: list[str] = []
-    list_open = False
+    list_kind = ""
     code_open = False
     code_lines: list[str] = []
     code_language = ""
@@ -68,12 +68,15 @@ def markdown_body(markdown: str) -> str:
             paragraph.clear()
 
     def close_list() -> None:
-        nonlocal list_open
-        if list_open:
-            output.append("</ul>")
-            list_open = False
+        nonlocal list_kind
+        if list_kind:
+            output.append(f"</{list_kind}>")
+            list_kind = ""
 
-    for line in lines:
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        index += 1
         if line.startswith("```"):
             flush_paragraph()
             close_list()
@@ -93,6 +96,20 @@ def markdown_body(markdown: str) -> str:
             flush_paragraph()
             close_list()
             continue
+        if index < len(lines) and "|" in line and re.fullmatch(r"\s*\|?[\s:|-]+\|?\s*", lines[index]):
+            flush_paragraph()
+            close_list()
+            headings = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            output.append("<div class=\"table-scroll\"><table><thead><tr>" + "".join(
+                f"<th>{_inline(cell)}</th>" for cell in headings
+            ) + "</tr></thead><tbody>")
+            index += 1
+            while index < len(lines) and lines[index].strip() and "|" in lines[index]:
+                cells = [cell.strip() for cell in lines[index].strip().strip("|").split("|")]
+                output.append("<tr>" + "".join(f"<td>{_inline(cell)}</td>" for cell in cells) + "</tr>")
+                index += 1
+            output.append("</tbody></table></div>")
+            continue
         heading = re.match(r"^(#{1,6})\s+(.+)$", line)
         if heading:
             flush_paragraph()
@@ -100,19 +117,26 @@ def markdown_body(markdown: str) -> str:
             level = len(heading.group(1))
             output.append(f'<h{level}><span class="content">{_inline(heading.group(2))}</span></h{level}>')
             continue
-        item = re.match(r"^[-*+]\s+(.+)$", line)
+        item = re.match(r"^([-*+]|\d+\.)\s+(.+)$", line)
         if item:
             flush_paragraph()
-            if not list_open:
-                output.append("<ul>")
-                list_open = True
-            output.append(f"<li>{_inline(item.group(1))}</li>")
+            kind = "ol" if item.group(1).endswith(".") else "ul"
+            if list_kind != kind:
+                close_list()
+                output.append(f"<{kind}>")
+                list_kind = kind
+            output.append(f"<li>{_inline(item.group(2))}</li>")
             continue
         quote = re.match(r"^>\s?(.*)$", line)
         if quote:
             flush_paragraph()
             close_list()
             output.append(f"<blockquote>{_inline(quote.group(1))}</blockquote>")
+            continue
+        if re.fullmatch(r"!\[[^\]]*\]\([^)]+\)", line.strip()):
+            flush_paragraph()
+            close_list()
+            output.append(_inline(line.strip()))
             continue
         paragraph.append(line.strip())
 
@@ -126,8 +150,14 @@ def markdown_body(markdown: str) -> str:
 def render_markdown(markdown: str, theme_css: str, *, title: str = "WeChat Article") -> str:
     body = markdown_body(markdown)
     safe_theme = theme_css.replace("</style", "<\\/style")
+    mobile_css = (
+        "#nice .table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}"
+        "#nice .table-scroll table{min-width:540px;border-collapse:collapse;}"
+        "#nice pre{max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;}"
+        "#nice img{max-width:100%;height:auto;}"
+    )
     return (
         "<!doctype html>\n<html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
         f"<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>{html.escape(title)}</title>"
-        f"<style>{safe_theme}</style></head><body><section id=\"nice\">{body}</section></body></html>\n"
+        f"<style>{safe_theme}{mobile_css}</style></head><body><section id=\"nice\">{body}</section></body></html>\n"
     )

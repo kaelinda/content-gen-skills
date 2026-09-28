@@ -7,7 +7,9 @@ import hmac
 from html.parser import HTMLParser
 from pathlib import PurePosixPath
 import re
+import ssl
 import urllib.parse
+import urllib.error
 import urllib.request
 
 from .config import RepositoryConfig
@@ -64,6 +66,22 @@ class OssClient:
         content_type = headers.get("content-type", "").lower()
         return status == 200 and content_type.startswith(expected.lower())
 
+    def is_absent(self, url: str) -> bool:
+        """Read the exact public object address for a failed pre-handoff upload."""
+        validate_public_url(url)
+        request = urllib.request.Request(url, method="GET", headers={"User-Agent": "content-gen-skills/1.0"})
+        try:
+            status, _, _ = self.transport(request, 15)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return True
+            raise OssError(f"object absence could not be verified: HTTP {exc.code}") from exc
+        if status == 404:
+            return True
+        if status == 200:
+            return False
+        raise OssError(f"object absence could not be verified: HTTP {status}")
+
     def verify_artifact(self, url: str, expected: str, local_bytes: bytes) -> dict[str, object]:
         """Read public bytes, not HEAD metadata; never claim browser preview."""
         receipt, remote_bytes = self._read_public(url, expected)
@@ -100,10 +118,12 @@ class OssClient:
     @staticmethod
     def _default_transport(request: urllib.request.Request, timeout: int):
         # Reject redirects rather than following an unvalidated destination.
+        import certifi
         class NoRedirect(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, req, fp, code, msg, headers, newurl):
                 return None
-        opener = urllib.request.build_opener(NoRedirect())
+        opener = urllib.request.build_opener(NoRedirect(), urllib.request.HTTPSHandler(
+            context=ssl.create_default_context(cafile=certifi.where())))
         with opener.open(request, timeout=timeout) as response:
             return int(response.status), {key.lower(): value for key, value in response.headers.items()}, response.read()
 

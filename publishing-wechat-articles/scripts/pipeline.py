@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from datetime import datetime
 
 from wechat_pipeline.config import load_repository_config
 from wechat_pipeline.feishu import FeishuClient
@@ -80,6 +81,28 @@ def _base_parser() -> argparse.ArgumentParser:
     publish.add_argument("--commit", action="store_true")
     publish.add_argument("--json", action="store_true", dest="as_json")
 
+    reconcile = subparsers.add_parser("reconcile-empty-upload", help="verify all expected OSS objects are absent after a failed upload")
+    reconcile.add_argument("run_id")
+    reconcile.add_argument("--json", action="store_true", dest="as_json")
+
+    reconcile_handoff = subparsers.add_parser("reconcile-handoff", help="search exact Feishu chat history before any handoff retry")
+    reconcile_handoff.add_argument("run_id")
+    reconcile_handoff.add_argument("--json", action="store_true", dest="as_json")
+
+    confirm = subparsers.add_parser("confirm-downstream", help="record verified publishing-assistant draft receipt")
+    confirm.add_argument("run_id")
+    confirm.add_argument("--draft-id", required=True)
+    confirm.add_argument("--assistant-message-id", required=True)
+    confirm.add_argument("--json", action="store_true", dest="as_json")
+
+    inspect_target = subparsers.add_parser("inspect-feishu-target", help="read-only Feishu credential and chat check")
+    inspect_target.add_argument("--account", choices=("tech", "parenting"), required=True)
+    inspect_target.add_argument("--json", action="store_true", dest="as_json")
+
+    inspect_handoff = subparsers.add_parser("inspect-handoff", help="read-only search for an uncertain Feishu handoff")
+    inspect_handoff.add_argument("run_id")
+    inspect_handoff.add_argument("--json", action="store_true", dest="as_json")
+
     resume = subparsers.add_parser("resume", help="resume the next safe stage from a manifest")
     resume.add_argument("run_id")
     resume.add_argument("--commit", action="store_true")
@@ -104,7 +127,14 @@ def _manifest_payload(manifest) -> dict[str, object]:
 
 
 def _publisher(config) -> Publisher:
-    return Publisher(OssClient.from_repository_config(config), FeishuClient(config), prefix=config.oss.prefix)
+    return Publisher(OssClient.from_repository_config(config), _feishu(config), prefix=config.oss.prefix)
+
+
+def _feishu(config):
+    if config.runtime.feishu_mode == "lark-cli":
+        from wechat_pipeline.lark_cli import LarkCliFeishuClient
+        return LarkCliFeishuClient(config)
+    return FeishuClient(config)
 
 
 def execute(args: argparse.Namespace) -> tuple[dict[str, object], int]:
@@ -148,6 +178,32 @@ def execute(args: argparse.Namespace) -> tuple[dict[str, object], int]:
             raise ValueError("--commit is required for external writes")
         path = pipeline._manifest_path(args.run_id)
         return _manifest_payload(_publisher(config).publish(path)), 0
+    if args.command == "reconcile-empty-upload":
+        return _manifest_payload(_publisher(config).reconcile_empty_upload(pipeline._manifest_path(args.run_id))), 0
+    if args.command == "reconcile-handoff":
+        return _manifest_payload(_publisher(config).reconcile_handoff(pipeline._manifest_path(args.run_id))), 0
+    if args.command == "confirm-downstream":
+        manifest = pipeline.status(args.run_id)
+        client = _feishu(config)
+        if not callable(getattr(client, "verify_draft_receipt", None)):
+            raise ValueError("this Feishu mode cannot verify assistant draft receipts")
+        receipt = client.verify_draft_receipt(manifest.account, args.assistant_message_id,
+                                              manifest.external.get("message_id"), manifest.title, args.draft_id)
+        confirmation = {"kind": "wechat-draft", "title": manifest.title,
+                        "message_id": manifest.external.get("message_id"),
+                        "confirmed_by": "publishing-assistant",
+                        "evidence": f"Feishu assistant message {args.assistant_message_id}; {receipt['method']}",
+                        "draft_id": args.draft_id}
+        return _manifest_payload(_publisher(config).confirm_downstream(pipeline._manifest_path(args.run_id), confirmation)), 0
+    if args.command == "inspect-feishu-target":
+        return _feishu(config).inspect_target(args.account), 0
+    if args.command == "inspect-handoff":
+        manifest = pipeline.status(args.run_id)
+        client = _feishu(config)
+        expected = client.handoff_text(manifest.title, manifest.summary,
+                                       manifest.external["cover_url"], manifest.external["html_url"])
+        since_ms = int(datetime.fromisoformat(manifest.created_at).timestamp() * 1000)
+        return client.inspect_handoff_history(manifest.account, expected, since_ms=since_ms), 0
     if args.command == "resume":
         manifest = pipeline.status(args.run_id)
         if manifest.state in {Stage.PLANNED, Stage.CAPTURED, Stage.WRITTEN, Stage.NEEDS_REVIEW}:

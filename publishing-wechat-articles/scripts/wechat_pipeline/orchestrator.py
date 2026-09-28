@@ -10,6 +10,7 @@ from .capture import archive_capture, capture_source
 from .config import RepositoryConfig
 from .cover import build_cover_html, render_cover_png
 from .manifest import ManifestError, RunManifest
+from .local_media import resolve_local_images
 from .models import Stage
 from .quality import check_article
 from .render import render_markdown
@@ -184,6 +185,18 @@ class Pipeline:
             self._verify_voice_gate(manifest, run_dir, article_path)
 
         markdown = article_path.read_text(encoding="utf-8")
+        markdown, media = resolve_local_images(
+            markdown, run_dir, bucket=self.config.oss.bucket, endpoint=self.config.oss.endpoint,
+            prefix=self.config.oss.prefix, account=manifest.account, title=manifest.title,
+        )
+        media_path = run_dir / "media.json"
+        if media:
+            self._write_json(media_path, {"images": media})
+            manifest.record_artifact("media_manifest", media_path, run_dir)
+        else:
+            media_path.unlink(missing_ok=True)
+            manifest.artifacts.pop("media_manifest", None)
+        manifest.save(run_dir / "manifest.json")
         title_report = check_title(manifest.title, markdown)
         title_quality_path = run_dir / "title-quality.json"
         title_quality_path.write_text(
@@ -218,7 +231,12 @@ class Pipeline:
         manifest.transition(Stage.CHECKED)
         manifest.save(run_dir / "manifest.json")
 
-        template = (self.config.skill_root / profile.cover_template).read_text(encoding="utf-8")
+        design_path = run_dir / "cover-design.html"
+        if design_path.is_file():
+            template = design_path.read_text(encoding="utf-8")
+            manifest.record_artifact("cover_design", design_path, run_dir)
+        else:
+            template = (self.config.skill_root / profile.cover_template).read_text(encoding="utf-8")
         cover_html_text = build_cover_html(
             template,
             title=manifest.title,

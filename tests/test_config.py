@@ -55,7 +55,6 @@ class RepositoryConfigTest(unittest.TestCase):
             path.read_text(errors="ignore")
             for path in (self.config.skill_root / "scripts/wechat_pipeline").rglob("*.py")
         )
-        self.assertNotIn("os.environ", active_source)
         self.assertNotIn(".hermes", active_source)
 
     def test_environment_values_override_local_runtime_without_printing_them(self):

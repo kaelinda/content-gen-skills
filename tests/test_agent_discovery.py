@@ -27,8 +27,9 @@ class AgentDiscoveryTest(unittest.TestCase):
         paths.extend(sorted((SKILL / "scripts" / "wechat_pipeline").glob("*.py")))
         paths.extend([SKILL / "scripts" / "pipeline.py", SKILL / "scripts" / "preflight.py"])
         content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
-        for forbidden in ("~/.hermes", "/Users/nowcoder", "os.environ", "OSS_AK", "OSS_SK", "lark-cli"):
+        for forbidden in ("~/.hermes", "/Users/nowcoder", "OSS_AK", "OSS_SK"):
             self.assertNotIn(forbidden, content)
+        self.assertIn("lark-cli", content)
 
     def test_vendored_hermes_sources_are_present(self):
         for name in (

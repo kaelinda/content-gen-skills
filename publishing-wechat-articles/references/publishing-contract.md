@@ -6,7 +6,7 @@ OSS uploads, Feishu messages, Feishu table writes, and WeChat actions are extern
 
 ## Account Routing
 
-Explicit `tech` or `parenting` intent wins. Otherwise route by title and tags using `config/accounts.toml`; unclear content defaults to `tech`. Destination chat, Base token, table ID, and app credentials come only from `config/runtime.local.toml` and must never be printed.
+Explicit `tech` or `parenting` intent wins. Otherwise route by title and tags using `config/accounts.toml`; unclear content defaults to `tech`. In `FEISHU_MODE=lark-cli`, both accounts hand off to `hermes-ali-ecs` (`oc_a8a9c19552135fec945d861a967bb465`) as the logged-in user. The account selects its own Bitable table. Credentials and table settings come from environment variables first, then the local runtime config; never print secrets.
 
 ## Artifact Upload
 
@@ -18,21 +18,28 @@ Checkpoint each returned URL before the next side effect. On an ambiguous timeou
 
 ## Feishu Handoff
 
-只发送 1 条消息 with exactly:
+只发送 1 条 Markdown 消息 via `lark-cli im +messages-send --chat-id ... --as user --markdown ...`:
 
-```text
-标题：<final title>
-摘要：<summary>
-封面：<public cover URL>
-HTML：<public HTML URL>
+```markdown
+**<final title>**
+
+<summary>
+
+📎 封面图：
+<public cover URL>
+
+📄 文章 HTML：
+<public HTML URL>
+
+打开 HTML → Ctrl+A → 复制 → 粘贴到公众号编辑器
 ```
 
-Do not attach the image or send the body in chunks. Persist the message ID before creating the tracking row.
+Do not attach the image or send the body in chunks. Use a deterministic idempotency key, parse the full JSON response, persist the message ID, and read back the exact user-sent message before creating the tracking row.
 The fixed payload contract is `标题 + 摘要 + 封面 URL + HTML URL`.
 
 ## Tracking Record
 
-The repository client calls the Feishu Open API directly with verified TLS. `是否已发布` is a JSON boolean and starts as `false`, never a string.
+In `lark-cli` mode, the repository client reads field types and creates/reads records with `lark-cli api --as user`. `是否已发布` is a JSON boolean and starts as `false`, never a string.
 
 | Account | Field insertion order |
 |---|---|
@@ -52,4 +59,4 @@ The repository client calls the Feishu Open API directly with verified TLS. `是
 | `published` | Explicit human or publishing-assistant confirmation |
 | `needs_reconcile` | A remote result is ambiguous; automated retry is disabled |
 
-Handoff is not publication. Report `待发布` until explicit confirmation, and update the checkbox only with separate authorization and an exact record ID.
+After receiving a draft receipt, run `confirm-downstream` with the exact draft ID and assistant message ID. The CLI reads both the handoff and assistant reply before recording `draft-confirmed`. Handoff and draft creation are not public publication. Report `待发布` until a public WeChat article URL is confirmed, and update the checkbox only with separate authorization and an exact record ID.

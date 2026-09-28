@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -56,6 +57,54 @@ class FeishuClient:
         if not message_id:
             raise FeishuError("Feishu response did not contain message_id")
         return message_id
+
+    def inspect_target(self, account: str) -> dict[str, object]:
+        """Read-only credential and chat check; never expose token or chat ID."""
+        token = self._token(account)
+        target = urllib.parse.quote(self._chat_id(account), safe="")
+        response = self._request_json(f"{self.API_BASE}/im/v1/chats/{target}", None, token=token)
+        data = response.get("data", {})
+        return {"token_valid": True, "chat_readable": True,
+                "chat_name": data.get("name", ""), "destination_key": self.destination_key(account)}
+
+    def inspect_handoff_history(self, account: str, expected_text: str, *, since_ms: int) -> dict[str, object]:
+        """Search recent chat messages without sending another one."""
+        token = self._token(account)
+        page_token = ""
+        scanned = 0
+        covered_since = False
+        for _ in range(20):
+            query = {"container_id_type": "chat", "container_id": self._chat_id(account),
+                     "page_size": 50, "sort_type": "ByCreateTimeDesc"}
+            if page_token:
+                query["page_token"] = page_token
+            response = self._request_json(f"{self.API_BASE}/im/v1/messages?{urllib.parse.urlencode(query)}",
+                                          None, token=token)
+            data = response.get("data", {})
+            items = data.get("items", [])
+            if not isinstance(items, list):
+                raise FeishuError("message history did not return items")
+            for item in items:
+                scanned += 1
+                try:
+                    text = json.loads(item.get("body", {}).get("content", "")).get("text")
+                except (TypeError, ValueError, AttributeError):
+                    text = None
+                if item.get("chat_id") == self._chat_id(account) and text == expected_text:
+                    return {"found": True, "message_id": item.get("message_id"),
+                            "scanned": scanned, "covered_since": True}
+                try:
+                    if int(item.get("create_time", "0")) < since_ms:
+                        covered_since = True
+                except (TypeError, ValueError):
+                    pass
+            if covered_since or data.get("has_more") is False:
+                return {"found": False, "scanned": scanned,
+                        "covered_since": covered_since or data.get("has_more") is False}
+            page_token = data.get("page_token", "")
+            if not page_token:
+                raise FeishuError("message history pagination was incomplete")
+        return {"found": False, "scanned": scanned, "covered_since": False}
 
     def destination_key(self, account: str) -> str:
         """Same chat across accounts shares a queue; do not persist raw chat IDs."""
@@ -165,7 +214,16 @@ class FeishuClient:
         request.add_header("Content-Type", "application/json; charset=utf-8")
         if token:
             request.add_header("Authorization", f"Bearer {token}")
-        status, _, raw = self.transport(request, 25)
+        try:
+            status, _, raw = self.transport(request, 25)
+        except urllib.error.HTTPError as exc:
+            try:
+                payload = json.loads(exc.read(4096).decode("utf-8"))
+            except (ValueError, UnicodeError):
+                payload = {}
+            code = payload.get("code", "unknown") if isinstance(payload, dict) else "unknown"
+            message = payload.get("msg", "unknown") if isinstance(payload, dict) else "unknown"
+            raise FeishuError(f"Feishu HTTP {exc.code}, API {code}: {message}") from exc
         if status < 200 or status >= 300:
             raise FeishuError(f"Feishu request failed with HTTP {status}")
         response = json.loads(raw.decode("utf-8"))
