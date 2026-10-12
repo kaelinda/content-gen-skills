@@ -33,21 +33,40 @@ class RepositoryConfigTest(unittest.TestCase):
     def test_prepare_config_loads_without_private_runtime_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             skill = Path(tmp) / "publishing-wechat-articles"
-            shutil.copytree(ROOT / "publishing-wechat-articles", skill)
-            (skill / "config" / "runtime.local.toml").unlink()
+            shutil.copytree(
+                ROOT / "publishing-wechat-articles", skill,
+                ignore=shutil.ignore_patterns("runtime.local.toml"),
+            )
+            self.assertFalse((skill / "config" / "runtime.local.toml").exists())
             self.assertTrue((skill / "config" / "runtime.example.toml").is_file())
 
-            config = load_repository_config(skill)
+            with patch.dict("os.environ", {}, clear=True):
+                config = load_repository_config(skill)
 
             self.assertEqual(config.runtime_path.name, "runtime.example.toml")
             self.assertEqual(config.runtime.oss_access_key_id, "")
             self.assertEqual(config.runtime.oss_access_key_secret, "")
 
     def test_credentials_are_named_not_stored(self):
-        self.assertTrue(self.config.runtime_path.is_file())
-        self.assertEqual(self.config.runtime_path.stat().st_mode & 0o777, 0o600)
-        self.assertTrue(self.config.runtime.oss_access_key_id)
-        self.assertTrue(self.config.runtime.oss_access_key_secret)
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "publishing-wechat-articles"
+            shutil.copytree(
+                self.config.skill_root / "config", skill / "config",
+                ignore=shutil.ignore_patterns("runtime.local.toml"),
+            )
+            runtime_path = skill / "config" / "runtime.local.toml"
+            template = (skill / "config" / "runtime.example.toml").read_text()
+            runtime_path.write_text(
+                template.replace('access_key_id = ""', 'access_key_id = "test-ak"')
+                .replace('access_key_secret = ""', 'access_key_secret = "test-sk"')
+            )
+            runtime_path.chmod(0o600)
+            with patch.dict("os.environ", {}, clear=True):
+                config = load_repository_config(skill)
+            self.assertEqual(config.runtime_path, runtime_path.resolve())
+            self.assertEqual(config.runtime_path.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(config.runtime.oss_access_key_id, "test-ak")
+            self.assertEqual(config.runtime.oss_access_key_secret, "test-sk")
         raw = (self.config.skill_root / "config/accounts.toml").read_text()
         self.assertNotIn("LTAI", raw)
         self.assertNotIn("app_secret =", raw)
