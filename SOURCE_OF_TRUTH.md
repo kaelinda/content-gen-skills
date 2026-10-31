@@ -19,11 +19,14 @@ CLI，不维护第二套规则。`vendor/hermes/` 是经过筛选的参考快照
 - 频道、主题、路由关键词：`publishing-wechat-articles/config/accounts.toml`
 - 无凭证的安全默认值：`publishing-wechat-articles/config/runtime.example.toml`
 - 环境变量模板：`.env.example`（真实 `.env` 被忽略）
-- 本机发布凭证：环境变量优先，也可使用 `publishing-wechat-articles/config/runtime.local.toml`
-- 运行时状态和文章产物：`workspace/runs/<run_id>/`
+- 本机发布凭证：进程环境 > 根目录 `.env` > `publishing-wechat-articles/config/runtime.local.toml` > 示例配置
+- 安装入口与迁移手册：根目录 `scripts/bootstrap.py`、`MIGRATION.md`
+- 当前写作经验：`publishing-wechat-articles/references/editorial-playbook.md`
+- 新任务产物：显式传 `--workspace output`，保存到 `output/runs/<run_id>/`；
+  历史 `workspace/` 只作兼容，不随技能自动迁移
 
-项目不读取用户目录下的 Hermes 配置。运行时优先读取环境变量，未提供的值再从本地
-TOML 读取；这样迁移后的项目可以直接启动，也保留本地复现方式。Secret 不会写入日志、
+项目不读取用户目录下的 Hermes 配置。运行时自动解析根目录 `.env`，但进程环境优先；
+未提供的值再从本地 TOML 和示例读取；这样迁移后的项目可以直接启动，也保留本地复现方式。Secret 不会写入日志、
 manifest 或文章产物。
 
 ## 状态真相

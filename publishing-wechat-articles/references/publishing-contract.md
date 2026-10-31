@@ -6,7 +6,7 @@ OSS uploads, Feishu messages, Feishu table writes, and WeChat actions are extern
 
 ## Account Routing
 
-Explicit `tech` or `parenting` intent wins. Otherwise route by title and tags using `config/accounts.toml`; unclear content defaults to `tech`. In `FEISHU_MODE=lark-cli`, both accounts hand off to `hermes-ali-ecs` (`oc_a8a9c19552135fec945d861a967bb465`) as the logged-in user. The account selects its own Bitable table. Credentials and table settings come from environment variables first, then the local runtime config; never print secrets.
+Explicit `tech` or `parenting` intent wins. Otherwise route by title and tags using `config/accounts.toml`; unclear content defaults to `tech`. In `FEISHU_MODE=lark-cli`, both accounts use the configured handoff chat as the logged-in user, while each account selects its own Bitable table. Put actual chat/Base/table identifiers only in private configuration, not in Skill prose. Resolve settings from process environment, repository-root `.env`, then local/default TOML; never print secrets.
 
 ## Artifact Upload
 

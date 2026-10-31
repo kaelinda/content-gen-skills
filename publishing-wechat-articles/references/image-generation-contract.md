@@ -4,7 +4,17 @@ The cover generator is an optional, paid external operation. `prepare-only` must
 
 ## Configuration
 
-Copy `config/runtime.example.toml` to the untracked `config/runtime.local.toml`, set `[image_generation] enabled = true`, the HTTPS endpoint, model `gpt-image-2`, a local API key, timeout, and exact download allowlist. Runtime configuration is loaded only from this repository. Never print the key or provider response.
+Configure `IMAGE_*` and the API key in the untracked repository-root `.env` (process environment takes priority); private `config/runtime.local.toml` remains a compatibility fallback. The existing Images API adapter accepts model `gpt-image-2` only. This is an implementation constraint, not a claim that the endpoint/model is currently available. Never print a key or raw provider response.
+
+## Current integration boundary
+
+`prepare` currently renders an HTML-template cover. The optional `generate_image_cover` function
+is a separately authorized library API, not a wired CLI command; do not invent a `cover --commit`
+command. Migration installs neither a Codex subscription adapter nor its authentication. If the
+user requires AI-generated pixels or an exact named model, template preparation does not satisfy
+that requirement. Configure and verify the target Agent image capability explicitly, record the
+actual model evidence, and report any unavailable capability rather than silently substituting.
+See `editorial-playbook.md` for cover/body-image distinctions and authentication boundaries.
 
 ## Authorization and output
 

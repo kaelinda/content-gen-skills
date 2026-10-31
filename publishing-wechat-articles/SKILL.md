@@ -5,6 +5,15 @@ description: Use when collecting a URL or topic, writing or revising a Chinese W
 
 # Publishing WeChat Articles
 
+## Portable setup and current editorial memory
+
+从其他 Agent 接手时，先阅读 `references/editorial-playbook.md`，它包含技术/育儿写作、
+分阶段审核、标题、口语化、图片与交接技巧。不要依赖原 Agent 的会话记忆。
+根目录 `MIGRATION.md` 提供安装和私密配置迁移步骤；`scripts/bootstrap.py` 是仓库根目录的
+环境安装入口，不是发布入口。执行时使用安装后的 `.venv/bin/python`。
+CLI 自动读取仓库根目录 `.env`，进程环境优先；不得打印凭证，也不必 `source .env`。
+用户要求先清单审核时，「继续」只推进当前阶段，不能默认批准写作或发布。
+
 ## Research and editorial readiness
 
 Before writing, create and pass a `research.json` dossier with `research-check`. It must identify the reader and concrete benefit, record the actual duplicate-check scope, list read official and supplementary sources, map material claims to source IDs, classify claims, and state limitations. `prepare` rechecks this dossier when present and blocks invalid or deleted evidence records. This validator checks record completeness and boundaries; it does not prove facts.

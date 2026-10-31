@@ -8,7 +8,10 @@ All paths are relative to the repository root. The canonical entry point is `pub
 |---|---|
 | Account routing and local settings | `publishing-wechat-articles/config/accounts.toml` |
 | Safe runtime defaults | `publishing-wechat-articles/config/runtime.example.toml` |
-| Private publish credentials | `publishing-wechat-articles/config/runtime.local.toml` |
+| Private configuration | root `.env`; optional `publishing-wechat-articles/config/runtime.local.toml` fallback |
+| Safe dotenv parser | `publishing-wechat-articles/scripts/wechat_pipeline/dotenv.py` |
+| Agent bootstrap | root `scripts/bootstrap.py`, `MIGRATION.md` |
+| Current editorial techniques | `publishing-wechat-articles/references/editorial-playbook.md` |
 | Capture | `publishing-wechat-articles/scripts/wechat_pipeline/capture.py` |
 | Title quality | `publishing-wechat-articles/scripts/wechat_pipeline/title_quality.py` |
 | Quality checks | `publishing-wechat-articles/scripts/wechat_pipeline/quality.py` |
@@ -19,7 +22,7 @@ All paths are relative to the repository root. The canonical entry point is `pub
 | Orchestration | `publishing-wechat-articles/scripts/wechat_pipeline/orchestrator.py` |
 | OSS and Feishu | `publishing-wechat-articles/scripts/wechat_pipeline/oss.py`, `feishu.py`, `publish.py` |
 
-Collect and prepare modes fall back to the checked-in `runtime.example.toml`, so a clean clone can run without credentials or environment variables. For publishing, create `runtime.local.toml` from the example; it must remain ignored and mode `0600`. Do not include any of its values in commands, logs, generated artifacts, or responses.
+Collect and prepare modes can use safe defaults without publishing credentials. The CLI automatically reads root `.env`, with process environment taking priority and TOML providing fallback values. Private files must remain ignored and mode `0600`. Do not include their values in commands, logs, generated artifacts, or responses.
 
 ## Assets
 
@@ -35,7 +38,7 @@ The `vendor/hermes/` tree is a copied, redacted source snapshot. Runtime code mu
 
 ## Local Storage
 
-- Runs: `workspace/runs/<run_id>/`
+- New runs: `output/runs/<run_id>/` with explicit `--workspace output`; historical default remains `workspace/runs/<run_id>/`
 - Technical vault: `workspace/vaults/tech/`
 - Parenting vault: `workspace/vaults/parenting/`
 - Optional voice evidence: `workspace/vaults/<account>/voice/evidence.toml` plus repository-local relative evidence files
@@ -43,7 +46,7 @@ The `vendor/hermes/` tree is a copied, redacted source snapshot. Runtime code mu
 
 Runs created with `plan --author-voice` additionally own `voice-context.json`, `author-brief.json`, and `voice-review.json`. Checked-in defaults live in `publishing-wechat-articles/config/voice/`; the context snapshot never contains private evidence bodies.
 
-The entire `workspace/` directory is local operational state and is ignored by version control.
+New `workspace/` and `output/` artifacts are ignored; some historical example files were already tracked before the ignore rules. They are not required for migration, and private operational history must not be bundled by default.
 
 ## Required Machine Runtime
 
@@ -51,4 +54,4 @@ The entire `workspace/` directory is local operational state and is ignored by v
 - Playwright Python package with Chromium for PNG cover rendering
 - Network access only for capture or an explicitly authorized publish
 
-Feishu and OSS calls use Python's verified TLS stack and credentials from the private repository-local TOML file. No separate command-line client is required.
+OSS and direct Open API calls use the repository clients and private configuration. `FEISHU_MODE=lark-cli` additionally requires the separately installed and logged-in `lark-cli`; `.env` does not replace its OAuth session.
