@@ -50,15 +50,18 @@ The table above is the default account-level voice. For an optional author-voice
 
 ## Title, Summary, And Cover
 
-- Produce three title candidates, then select one final title before rendering.
+- Produce three numbered title candidates. If the user requested review, wait for their selection rather than auto-finalizing; otherwise select one final title before rendering.
 - Run the selected title through the title quality gate after the body is complete and before any cover or article HTML is rendered.
 - Keep the summary factual and self-contained for the Feishu handoff.
 - Use the repository cover templates by default at 1200 x 540 logical pixels. 用户指定 `gpt-image-2` 时按 `image-generation-contract.md` 配置调用，不能偷偷替换模型或将模板封面谎称为生成结果。
 - 官方账号或机构内容的标题突出来源与具体收益，但禁止虚构量化承诺、最高级或效果保证。
+  权威来源必须真正支撑核心论点，不能给个人观察套官方背书。
 - 正文优先采用官网真正解释机制、流程或界面的图片，记录来源/使用限制，下载到项目 workspace；不要把仓库 OG 预览图冒充架构图。图片映射到具体章节，使用描述性 alt 并解释读者应该看哪里。
 - 封面由自己设计，不能拿原文插图顶替；复杂流程、决策、对比的正文需要解释性插图，封面不能替代它。无合适官方图时记录缺口，征得需要的生成授权或提供明确标注的示意图，不为凑数加装饰。
 - 准备阶段保留本地图片；发布阶段由项目上传器上传 OSS 并重写 HTML 引用。检查每张图的可访问性、MIME、实际渲染和移动端可读性；视觉工具不可用时如实保留人工检查项。
 - Visually inspect clipped Chinese text, fonts, contrast, and stale title text.
+- 去 AI 味不得提高事实确定性：有依据的不确定性必须保留；查不到研究时删去或限缩
+  结论，不可换成无出处的“临床经验”。场景示例须标示例，不能冒充亲历或孩子原话。
 - A title change invalidates the previous cover.
 
 ### Title quality gate

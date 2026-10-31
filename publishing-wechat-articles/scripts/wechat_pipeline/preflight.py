@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 import importlib.util
 from pathlib import Path
+import stat
 
 from .config import RepositoryConfig
 from .voice import VoiceError, load_voice_profile
@@ -51,6 +52,21 @@ def _path_check(name: str, path: Path) -> PreflightCheck:
     return PreflightCheck(name, "ok" if path.is_file() else "missing", True, str(path))
 
 
+def _private_permissions_check(name: str, path: Path) -> PreflightCheck:
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        return PreflightCheck(name, "missing", True, "loaded private file is missing")
+    except OSError:
+        return PreflightCheck(name, "invalid", True, "cannot inspect private file")
+    secure = (
+        stat.S_ISREG(metadata.st_mode)
+        and metadata.st_nlink == 1
+        and stat.S_IMODE(metadata.st_mode) == 0o600
+    )
+    return PreflightCheck(name, "ok" if secure else "invalid", True, "requires a regular file without links and with mode 0600")
+
+
 def playwright_available() -> bool:
     if importlib.util.find_spec("playwright") is None:
         return False
@@ -85,6 +101,14 @@ def run_preflight(
         _path_check("quality_module", module_root / "quality.py"),
         _path_check("title_quality_module", module_root / "title_quality.py"),
     ]
+    # Check every private file actually loaded, not just the highest-precedence
+    # layer. One process variable must never exempt lower-layer credentials.
+    if config.runtime_path != config.skill_root / "config" / "runtime.example.toml":
+        checks.append(_private_permissions_check("runtime_permissions", config.runtime_path))
+    else:
+        checks.append(PreflightCheck("runtime_permissions", "ok", True, "no private runtime file loaded"))
+    if config.dotenv_path is not None:
+        checks.append(_private_permissions_check("dotenv_permissions", config.dotenv_path))
     if mode in {"prepare-only", "publish"}:
         checks.extend(
             [
@@ -116,7 +140,6 @@ def run_preflight(
         app_secret = runtime.tech_app_secret if account == "tech" else runtime.parenting_app_secret
         checks.extend(
             [
-                PreflightCheck("runtime_permissions", "ok" if config.runtime_path.stat().st_mode & 0o777 == 0o600 else "invalid", True),
                 PreflightCheck("oss_credentials", "ok" if oss_ready else "missing", True),
                 PreflightCheck("feishu_credentials", "ok" if runtime.feishu_mode == "lark-cli" or (app_id and app_secret) else "missing", True),
                 PreflightCheck(
@@ -126,14 +149,4 @@ def run_preflight(
                 ),
             ]
         )
-        if config.runtime_source == "environment":
-            checks = tuple(
-                PreflightCheck(
-                    item.name,
-                    "ok" if item.name == "runtime_permissions" else item.status,
-                    item.required,
-                    "environment variables" if item.name == "runtime_permissions" else item.detail,
-                )
-                for item in checks
-            )
     return PreflightReport(mode, account, tuple(checks))

@@ -1,10 +1,24 @@
 # Content Gen Skills
 
-一个仓库内自包含的公众号文章协作流水线，同时支持 Codex 和 Claude Code。它可以完成公开资料抓取、知识库归档、中文文章质检、标题评分、主题 HTML 渲染和 1200×540 封面生成；只有显式授权后才允许执行 OSS 与飞书写操作。
+一个仓库内自包含的公众号文章协作流水线，提供 Codex、Claude Code 和 Hermes 的迁移入口。它可以完成公开资料抓取、知识库归档、中文文章质检、标题评分、主题 HTML 渲染和 1200×540 封面生成；只有显式授权后才允许执行 OSS 与飞书写操作。
 
 项目的边界和迁移映射见 [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md)、
 [references/workflow.md](publishing-wechat-articles/references/workflow.md) 和
 [references/migration-report.md](publishing-wechat-articles/references/migration-report.md)。
+
+## 一条命令准备迁移
+
+```bash
+python3 scripts/bootstrap.py                  # 只准备当前仓库，不改全局 Skill
+# 或明确给新机器上的 Hermes 安装薄入口：
+python3 scripts/bootstrap.py --agent hermes
+```
+
+安装器保留已有 `.env`，新建时使用无密钥模板，权限设为 `0600`。CLI 自动读取根目录
+`.env`；真实配置通过受信私密通道单独迁移，不提交 Git。完整步骤、其他 Agent 选项和
+登录态边界见 [MIGRATION.md](MIGRATION.md)。写作技巧集中在
+[editorial-playbook.md](publishing-wechat-articles/references/editorial-playbook.md)，
+无需复制原 Agent 的记忆。
 
 ## 能力
 
@@ -51,6 +65,7 @@ python3 -m playwright install chromium
 
 Linux 服务器如果还缺少 Chromium 系统库，可将最后一步替换为
 `python3 -m playwright install --with-deps chromium`，安装系统库时可能需要管理员权限。
+首次 Chromium 下载可能持续数分钟；不要把短超时当作安装失败。
 重新打开终端后，先执行 `source .venv/bin/activate`，保证安装和运行使用同一个 Python。
 `.venv/` 已被 Git 忽略，不需要提交或复制到其他机器。
 
@@ -62,17 +77,12 @@ Linux 服务器如果还缺少 Chromium 系统库，可将最后一步替换为
 cp .env.example .env
 ```
 
-当前 CLI **不会自动读取 `.env`**。填写完成后，在运行命令的同一终端中加载：
+CLI **自动读取仓库根目录 `.env`**，不依赖执行时的工作目录，不需要 `source`，
+也不会执行文件中的 shell 内容。手动创建后执行 `chmod 600 .env`。
 
-```bash
-set -a
-source .env
-set +a
-```
-
-部署时也可以由进程管理器直接注入同名环境变量。环境变量优先于本地 TOML；空值也会
-覆盖对应配置，因此暂时不用的变量请删除或注释。真实 `.env` 已被 Git 忽略，不要提交。
-收录和本地准备不需要发布凭证，也可以跳过此步骤。
+优先级：进程环境 > 根目录 `.env` > 本地 TOML > 示例配置。空值也会覆盖对应配置，
+因此暂时不用的变量请删除或注释。真实 `.env` 已被 Git 忽略，不要提交或打印。
+收录和本地准备不需要发布凭证；写作模型配置与发布配置相互独立。
 
 ### 3. 安装并登录飞书 CLI（使用飞书交接时）
 
@@ -155,10 +165,10 @@ python3 publishing-wechat-articles/scripts/pipeline.py --workspace output prepar
 
 ## 配置与安全边界
 
-`prepare-only` 和 `collect-only` 无需发布凭证。配置优先读取环境变量，未设置的值读取
-本机 `runtime.local.toml`；该文件不存在时使用仓库内的 `runtime.example.toml`。
+`prepare-only` 和 `collect-only` 无需发布凭证。配置优先读取进程环境，其次读取仓库根目录 `.env`，
+再由本机 `runtime.local.toml` 和仓库内 `runtime.example.toml` 补充缺项。
 
-发布推荐使用上面的 `.env` 加载方式，无需创建私人 TOML。本地开发也可以选择在本机创建：
+发布推荐使用上面的 `.env` 自动加载方式，无需创建私人 TOML。本地开发也可以选择在本机创建：
 
 ```text
 publishing-wechat-articles/config/runtime.local.toml

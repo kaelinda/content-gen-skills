@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 import tomllib
 
+from .dotenv import read_dotenv, read_private_text
+
 
 @dataclass(frozen=True)
 class OssConfig:
@@ -30,7 +32,7 @@ class AccountProfile:
 @dataclass(frozen=True)
 class RuntimeAccount:
     chat_id: str
-    base_token: str
+    base_token: str = field(repr=False)
     table_id: str
 
 
@@ -46,14 +48,14 @@ class ImageGenerationConfig:
 
 @dataclass(frozen=True)
 class RuntimeConfig:
-    oss_access_key_id: str
-    oss_access_key_secret: str
+    oss_access_key_id: str = field(repr=False)
+    oss_access_key_secret: str = field(repr=False)
     feishu_mode: str
     primary_chat_id: str
     tech_app_id: str
-    tech_app_secret: str
+    tech_app_secret: str = field(repr=False)
     parenting_app_id: str
-    parenting_app_secret: str
+    parenting_app_secret: str = field(repr=False)
     accounts: dict[str, RuntimeAccount]
     image_generation: ImageGenerationConfig = field(default_factory=ImageGenerationConfig)
 
@@ -70,6 +72,7 @@ class RepositoryConfig:
     runtime: RuntimeConfig
     accounts: dict[str, AccountProfile]
     runtime_source: str = "file"
+    dotenv_path: Path | None = None
 
     def route_account(self, requested: str, title: str, tags: str) -> str:
         if requested != "auto":
@@ -85,48 +88,77 @@ class RepositoryConfig:
         return best if scores[best] else "tech"
 
 
-def load_repository_config(skill_root: Path | None = None) -> RepositoryConfig:
+def _deep_merge(base: dict, overlay: dict) -> dict:
+    merged = dict(base)
+    for key, value in overlay.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def load_repository_config(
+    skill_root: Path | None = None, *, load_dotenv: bool = True,
+) -> RepositoryConfig:
+    """Process environment > repository .env > private TOML > example TOML.
+
+    All aliases in a layer are checked before moving to the next layer. Empty
+    values count as explicit overrides. Set ``load_dotenv=False`` to disable
+    repository dotenv reads; this never imports values into ``os.environ``.
+    """
     resolved_skill = (skill_root or Path(__file__).resolve().parents[2]).resolve()
     config_path = resolved_skill / "config" / "accounts.toml"
     data = tomllib.loads(config_path.read_text(encoding="utf-8"))
+    example_runtime_path = resolved_skill / "config" / "runtime.example.toml"
     private_runtime_path = resolved_skill / "config" / "runtime.local.toml"
-    runtime_path = (
-        private_runtime_path
-        if private_runtime_path.is_file()
-        else resolved_skill / "config" / "runtime.example.toml"
-    )
-    runtime_data = tomllib.loads(runtime_path.read_text(encoding="utf-8"))
-    env_used = False
+    runtime_data = tomllib.loads(example_runtime_path.read_text(encoding="utf-8"))
+    private_text = read_private_text(private_runtime_path, label="runtime.local.toml")
+    if private_text is not None:
+        try:
+            runtime_data = _deep_merge(runtime_data, tomllib.loads(private_text))
+        except tomllib.TOMLDecodeError:
+            raise ValueError("invalid runtime.local.toml syntax") from None
+    runtime_path = private_runtime_path if private_text is not None else example_runtime_path
+    dotenv_path = resolved_skill.parent / ".env"
+    dotenv_values = read_dotenv(dotenv_path) if load_dotenv else None
+    # Snapshot for a consistent load, without mutating the global environment.
+    environment = dict(os.environ)
+    used_sources: set[str] = set()
+
+    def env_lookup(*names: str) -> tuple[str, str] | None:
+        for source, values in (("environment", environment), ("dotenv", dotenv_values or {})):
+            for name in names:
+                if name in values:
+                    used_sources.add(source)
+                    return name, values[name]
+        return None
 
     def env_value(*names: str, default: str = "") -> str:
-        nonlocal env_used
-        for name in names:
-            value = os.getenv(name)
-            if value is not None:
-                env_used = True
-                return value
-        return default
+        found = env_lookup(*names)
+        return default if found is None else found[1]
 
     def env_bool(*names: str, default: bool = False) -> bool:
-        raw = env_value(*names, default="")
-        if not raw:
+        found = env_lookup(*names)
+        if found is None:
             return default
-        return raw.strip().lower() in {"1", "true", "yes", "on"}
+        return found[1].strip().lower() in {"1", "true", "yes", "on"}
 
     def env_float(*names: str, default: float) -> float:
-        raw = env_value(*names, default="")
-        if not raw:
+        found = env_lookup(*names)
+        if found is None:
             return default
         try:
-            return float(raw)
-        except ValueError as exc:
-            raise ValueError(f"invalid numeric environment variable: {names[0]}") from exc
+            return float(found[1])
+        except ValueError:
+            # Do not chain float()'s exception: it includes the input value.
+            raise ValueError(f"invalid numeric environment variable: {names[0]}") from None
 
     def env_hosts(*names: str, default: tuple[str, ...]) -> tuple[str, ...]:
-        raw = env_value(*names, default="")
-        if not raw:
+        found = env_lookup(*names)
+        if found is None:
             return default
-        return tuple(item.strip() for item in raw.split(",") if item.strip())
+        return tuple(item.strip() for item in found[1].split(",") if item.strip())
     accounts = {
         name: AccountProfile(
             name=name,
@@ -139,11 +171,11 @@ def load_repository_config(skill_root: Path | None = None) -> RepositoryConfig:
         )
         for name, raw in data["accounts"].items()
     }
-    endpoint_override = env_value("OSS_ENDPOINT", "WECHAT_OSS_ENDPOINT", default="")
-    region_override = env_value("OSS_REGION", "WECHAT_OSS_REGION", default="")
-    oss_endpoint = endpoint_override or (
-        f"oss-{region_override}.aliyuncs.com" if region_override else data["oss"]["endpoint"]
-    )
+    endpoint_override = env_lookup("OSS_ENDPOINT", "WECHAT_OSS_ENDPOINT", "OSS_REGION", "WECHAT_OSS_REGION")
+    oss_endpoint = data["oss"]["endpoint"]
+    if endpoint_override is not None:
+        name, value = endpoint_override
+        oss_endpoint = f"oss-{value}.aliyuncs.com" if name.endswith("_REGION") and value else value
     return RepositoryConfig(
         skill_root=resolved_skill,
         repository_root=resolved_skill.parent,
@@ -187,5 +219,6 @@ def load_repository_config(skill_root: Path | None = None) -> RepositoryConfig:
             ),
         ),
         accounts=accounts,
-        runtime_source="environment" if env_used else "file",
+        runtime_source="environment" if "environment" in used_sources else "dotenv" if "dotenv" in used_sources else "file",
+        dotenv_path=dotenv_path if dotenv_values is not None else None,
     )

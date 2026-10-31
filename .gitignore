@@ -1,5 +1,7 @@
 publishing-wechat-articles/config/runtime.local.toml
 .env
+.env.*
+!.env.example
 .venv/
 workspace/
 __pycache__/
