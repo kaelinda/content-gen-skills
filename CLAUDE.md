@@ -8,6 +8,8 @@ python3 publishing-wechat-articles/scripts/pipeline.py --help
 
 Load `.claude/skills/publishing-wechat-articles/SKILL.md` and follow its authorization gates. Never execute legacy scripts under `vendor/hermes/` and never print `config/runtime.local.toml`.
 
+小宇宙单集发布、上传或核对转码与审核时，加载 `.claude/skills/publishing-xiaoyuzhou-episodes/SKILL.md` 并遵守其中的授权门禁。公众号文章仍使用上面的微信 CLI。
+
 迁移后的参考 Skill、脚本映射和编辑记忆均保存在仓库内；优先读取
 `SOURCE_OF_TRUTH.md` 和 `publishing-wechat-articles/references/`，不要依赖用户目录下
 的 Hermes 文件。环境变量配置见根目录 `.env.example`。

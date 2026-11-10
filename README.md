@@ -32,6 +32,9 @@ python3 scripts/bootstrap.py --agent hermes
 - SSRF 防护、HTTPS 校验、重定向复核和下载大小限制
 - 可恢复的运行清单、产物 SHA-256 与外部操作幂等检查
 - 仓库内置 Hermes 参考资源，不读取 `~/.hermes`
+- 小宇宙单集：`publishing-xiaoyuzhou-episodes/SKILL.md`，用于在已有托管节目上走官方主播后台发布或核对状态
+
+向小宇宙已有托管节目创建单集、提交发布，或核对转码与审核时，加载 `publishing-xiaoyuzhou-episodes/`。该目录只放官方后台流程，不替代上面的公众号流水线。
 
 ## 环境与依赖安装
 
@@ -161,7 +164,12 @@ python3 publishing-wechat-articles/scripts/pipeline.py --workspace output prepar
 - Codex：`.agents/skills/publishing-wechat-articles`
 - Claude Code：`.claude/skills/publishing-wechat-articles`
 
-根目录的 `AGENTS.md` 和 `CLAUDE.md` 都要求使用统一 CLI，并禁止执行 `vendor/hermes/` 下的旧脚本。
+小宇宙单集使用同一方式：
+
+- Codex：`.agents/skills/publishing-xiaoyuzhou-episodes`
+- Claude Code：`.claude/skills/publishing-xiaoyuzhou-episodes`
+
+根目录的 `AGENTS.md` 和 `CLAUDE.md` 都要求公众号任务使用统一 CLI，并禁止执行 `vendor/hermes/` 下的旧脚本。小宇宙任务改加载对应 Skill，不经过微信 CLI。
 
 ## 配置与安全边界
 
