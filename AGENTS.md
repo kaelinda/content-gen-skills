@@ -8,6 +8,8 @@ python3 publishing-wechat-articles/scripts/pipeline.py --help
 
 Load `.agents/skills/publishing-wechat-articles/SKILL.md` and follow its authorization gates. Never execute legacy scripts under `vendor/hermes/` and never print `config/runtime.local.toml`.
 
+小宇宙单集发布、上传或核对转码与审核时，加载 `.agents/skills/publishing-xiaoyuzhou-episodes/SKILL.md` 并遵守其中的授权门禁。公众号文章仍使用上面的微信 CLI。
+
 迁移后的参考 Skill 快照位于 `publishing-wechat-articles/vendor/migrated-skills/`，历史
 经验位于 `publishing-wechat-articles/references/migrated-memory.md`。它们属于项目内
 Source of Truth 的参考资料；运行时仍只使用仓库 CLI 和安全适配器。
