@@ -8,6 +8,8 @@ python3 publishing-wechat-articles/scripts/pipeline.py --help
 
 Load `.agents/skills/publishing-wechat-articles/SKILL.md` and follow its authorization gates. Never execute legacy scripts under `vendor/hermes/` and never print `config/runtime.local.toml`.
 
+本仓库另有口播/语音稿写作技能。写中文口播稿时加载 `.agents/skills/writing-koubo-scripts/SKILL.md`。
+
 迁移后的参考 Skill 快照位于 `publishing-wechat-articles/vendor/migrated-skills/`，历史
 经验位于 `publishing-wechat-articles/references/migrated-memory.md`。它们属于项目内
 Source of Truth 的参考资料；运行时仍只使用仓库 CLI 和安全适配器。
