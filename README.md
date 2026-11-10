@@ -32,6 +32,7 @@ python3 scripts/bootstrap.py --agent hermes
 - SSRF 防护、HTTPS 校验、重定向复核和下载大小限制
 - 可恢复的运行清单、产物 SHA-256 与外部操作幂等检查
 - 仓库内置 Hermes 参考资源，不读取 `~/.hermes`
+- 口播/语音稿：`writing-koubo-scripts/SKILL.md`，从已定稿文字简报改写成适合朗读或语音合成的中文口播稿
 
 ## 环境与依赖安装
 
@@ -160,6 +161,11 @@ python3 publishing-wechat-articles/scripts/pipeline.py --workspace output prepar
 
 - Codex：`.agents/skills/publishing-wechat-articles`
 - Claude Code：`.claude/skills/publishing-wechat-articles`
+
+口播/语音稿写作技能用同样的相对符号链接指向同一份文件：
+
+- Codex：`.agents/skills/writing-koubo-scripts`
+- Claude Code：`.claude/skills/writing-koubo-scripts`
 
 根目录的 `AGENTS.md` 和 `CLAUDE.md` 都要求使用统一 CLI，并禁止执行 `vendor/hermes/` 下的旧脚本。
 

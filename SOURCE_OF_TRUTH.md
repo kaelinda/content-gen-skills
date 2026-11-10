@@ -44,3 +44,7 @@ SHA-256、外部 ID、回读证据和错误。OSS 上传、飞书投递、飞书
 
 频道选择由 `plan` 的 `--account` 或标题/标签路由决定；准备阶段会把频道传入
 质量检查，频道提示会写入 `quality.json`。
+
+## 口播稿
+
+本仓库另有口播/语音稿写作技能。从已定稿文字简报改写中文口播稿时，加载 `writing-koubo-scripts/SKILL.md`。Codex 与 Claude Code 分别通过 `.agents/skills/writing-koubo-scripts` 和 `.claude/skills/writing-koubo-scripts` 指向这一份文件。
