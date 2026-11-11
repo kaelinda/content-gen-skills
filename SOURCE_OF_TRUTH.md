@@ -44,3 +44,7 @@ SHA-256、外部 ID、回读证据和错误。OSS 上传、飞书投递、飞书
 
 频道选择由 `plan` 的 `--account` 或标题/标签路由决定；准备阶段会把频道传入
 质量检查，频道提示会写入 `quality.json`。
+
+## 小宇宙节目制作
+
+规划或制作小宇宙节目时，加载 `producing-xiaoyuzhou-podcasts/SKILL.md`。Codex 与 Claude Code 分别通过 `.agents/skills/producing-xiaoyuzhou-podcasts` 和 `.claude/skills/producing-xiaoyuzhou-podcasts` 指向这一份文件。口播改写仍使用 `writing-koubo-scripts`，官方上传仍使用 `publishing-xiaoyuzhou-episodes`。上面的公众号运行入口、配置和状态机保持不变。
