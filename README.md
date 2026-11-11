@@ -32,6 +32,7 @@ python3 scripts/bootstrap.py --agent hermes
 - SSRF 防护、HTTPS 校验、重定向复核和下载大小限制
 - 可恢复的运行清单、产物 SHA-256 与外部操作幂等检查
 - 仓库内置 Hermes 参考资源，不读取 `~/.hermes`
+- 小宇宙节目制作：`producing-xiaoyuzhou-podcasts/SKILL.md`，用于定位、包装、形式时长、更新节奏、剪辑配乐和发布前质检
 
 ## 环境与依赖安装
 
@@ -160,6 +161,13 @@ python3 publishing-wechat-articles/scripts/pipeline.py --workspace output prepar
 
 - Codex：`.agents/skills/publishing-wechat-articles`
 - Claude Code：`.claude/skills/publishing-wechat-articles`
+
+小宇宙节目制作技能用同样的相对符号链接指向同一份文件：
+
+- Codex：`.agents/skills/producing-xiaoyuzhou-podcasts`
+- Claude Code：`.claude/skills/producing-xiaoyuzhou-podcasts`
+
+口播改写仍使用 `writing-koubo-scripts`，官方上传仍使用 `publishing-xiaoyuzhou-episodes`。
 
 根目录的 `AGENTS.md` 和 `CLAUDE.md` 都要求使用统一 CLI，并禁止执行 `vendor/hermes/` 下的旧脚本。
 
